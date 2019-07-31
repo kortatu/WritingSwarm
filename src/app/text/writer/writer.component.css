@@ -1,0 +1,13 @@
+.textzone {
+    padding: 7px;
+    width: 50%;
+    background-color: #62626250;
+}
+.textzone.modified {
+    background-color: #ffa80050;
+}
+
+.editzone {
+    width: 50%;
+    height: 100px;
+}

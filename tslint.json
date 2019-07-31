@@ -69,8 +69,8 @@
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "quotemark": [
-      true,
-      "single"
+      false,
+      "double"
     ],
     "trailing-comma": false,
     "no-conflicting-lifecycle": true,

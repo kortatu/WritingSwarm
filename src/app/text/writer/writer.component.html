@@ -1,0 +1,11 @@
+<h3> {{ path }}</h3>
+<h5>Original content</h5>
+<pre class="textzone" [innerHTML]="originalSanitized"></pre>
+<hr/>
+<textarea class="editzone" #myInput (keyup)="changeContent()" [(ngModel)]="content"></textarea>
+
+<br/>
+<button title="Save Content" *ngIf="modified" (click)="saveContent()">Save Content</button>
+<h5>Preview</h5>
+<pre class="textzone" [class.modified]="modified" [innerHTML]="sanitized"></pre>
+
