@@ -1,6 +1,7 @@
 import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {environment} from "../environments/environment";
 import {IBzzListEntries, IBzzListEntry, SwarmService} from './swarm.service';
+import {EventsService} from './events.service';
 
 @Component({
   selector: "app-root",
@@ -13,12 +14,19 @@ export class AppComponent implements OnInit {
     private content: string;
     private currentPath: string;
     private rootHash = environment.rootHash;
+    private messageReceived: string;
 
     constructor(
-      private swarmService: SwarmService) {
+      private swarmService: SwarmService,
+      private eventsService: EventsService) {
     }
 
-    ngOnInit(): void {
+    async ngOnInit(): Promise<void> {
+        await this.eventsService.initConnections();
+        await this.eventsService.subscribeToTopic(payload => {
+                this.messageReceived = payload.msg.toString();
+                console.log(`received message from ${payload.key}: ${payload.msg.toString()}`);
+        });
         const rootHashFromStorage: string = localStorage.getItem('rootHash');
         if (rootHashFromStorage !== null) {
             console.log("Root hash in storage: " + rootHashFromStorage);
@@ -49,5 +57,9 @@ export class AppComponent implements OnInit {
         const listEntries: IBzzListEntries = await this.swarmService.listPath(this.rootHash + '/testaco/');
         console.log('Obtained entries', listEntries);
         this.entries = listEntries.entries;
+    }
+
+    sendMessage() {
+        this.eventsService.sendMessage(this.content);
     }
 }

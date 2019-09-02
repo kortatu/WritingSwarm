@@ -12,3 +12,7 @@
 <div id="content" [hidden]="!content">
   <app-writer [path]="currentPath" [content]="content" (contentChange)="saveContent($event)"></app-writer>
 </div>
+
+<a (click)="sendMessage()">Send Message</a>
+
+<pre class="textzone">{{ messageReceived }}</pre>
