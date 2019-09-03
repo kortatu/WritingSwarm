@@ -1,8 +1,9 @@
 import {Injectable, OnInit} from '@angular/core';
 import { SwarmClient } from '@erebos/swarm-browser';
 import webSocketRPC from '@mainframe/rpc-ws-browser';
-import newHex, {hexValue} from '@erebos/hex';
+import {createHex, hexValue} from '@erebos/hex';
 import {PssEvent} from '@erebos/api-pss';
+import {pubKeyToAddress} from '@erebos/keccak256';
 
 const DEST_PUBLIC_KEY =
     '0x047c234583bb979471f8a9b46f23951b5b4debc5f19f1f065ed630acc6f4c993a5e79c9bd49d6bd5eb66fdd3524a9638ed1a3ea6501e00ffd865385d9df0ed99a2';
@@ -16,24 +17,26 @@ export class EventsService {
   constructor() {}
 
   async initConnections(): Promise<void> {
-    const swarmClient1 = new SwarmClient({ pss: 'ws://localhost:8501'});
+    const swarmClient = new SwarmClient({ pss: 'ws://localhost:8501'});
 
-    const [key, testTopic] = await Promise.all([
-      swarmClient1.pss.getPublicKey(),
-      swarmClient1.pss.stringToTopic('testTopic'),
+    const [pubKey, testTopic] = await Promise.all([
+      swarmClient.pss.getPublicKey(),
+      swarmClient.pss.stringToTopic('testTopic'),
     ]);
 
     this.subject1 = {
-      swarmClient: swarmClient1,
-      pubKey: key,
+      swarmClient,
+      pubKey,
       topic: testTopic,
     };
 
-    const destPubKey = newHex(DEST_PUBLIC_KEY).value;
-    await swarmClient1.pss.setPeerPublicKey(destPubKey, testTopic);
+    const destPublicKey = createHex(DEST_PUBLIC_KEY);
+    const destPubKeyString = destPublicKey.value;
+    const address = pubKeyToAddress(destPublicKey.toBuffer());
+    await swarmClient.pss.setPeerPublicKey(destPubKeyString, testTopic, address);
     this.subject2 = {
       swarmClient: null,
-      pubKey: destPubKey,
+      pubKey: destPubKeyString,
       topic: testTopic,
     };
   }

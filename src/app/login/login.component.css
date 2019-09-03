@@ -1,0 +1,23 @@
+#toolbar {
+    box-shadow: rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px, rgba(0, 0, 0, 0.2) 0px 3px 1px -2px;
+    background-color: rgb(50, 54, 57);
+    color: rgb(241, 241, 241);
+    display: flex;
+    height: 48px;
+    padding: 0 16px;
+    font-family: Roboto, Arial, sans-serif;
+    font-size: 13px;
+}
+
+#toolbar .material-icons {
+    font-size: 36px;
+    margin-top: 6px;
+}
+
+#toolbar a, #toolbar a:visited {
+    color: rgb(241, 241, 241);
+}
+
+input#privateKey {
+    width: 500px;
+}

@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   swarmProxy: 'http://localhost:8500',
-  rootHash: '294f8c74ff8524b70dd7748c8edc7da196ca3f32b878ba2a4f975e4e440c441a'
+  rootHash: '294f8c74ff8524b70dd7748c8edc7da196ca3f32b878ba2a4f975e4e440c441a',
 };
 
 /*

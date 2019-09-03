@@ -26,7 +26,7 @@ export class SwarmService {
      */
     saveFileContent(rootHash: string, filePath: string, value: string): Promise<string> {
         const formData = new FormData();
-        const blob = new Blob([value], { type: "text/xml"});
+        const blob = new Blob([value], { type: "text/plain"});
         formData.append(filePath, blob, filePath);
         const url = this.proxy + '/bzz:/' + rootHash;
         return this.http.post(url, formData, {responseType: 'text'}).toPromise();

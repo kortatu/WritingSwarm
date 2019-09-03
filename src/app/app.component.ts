@@ -2,6 +2,12 @@ import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {environment} from "../environments/environment";
 import {IBzzListEntries, IBzzListEntry, SwarmService} from './swarm.service';
 import {EventsService} from './events.service';
+import {FeedsService} from './feeds.service';
+import {hexValue} from '@erebos/hex';
+
+const PROPERTY_PREFIX = 'SwarmWriter';
+const PROPERTY_SEPARATOR = '.';
+const KEY_PROPERTY = 'key';
 
 @Component({
   selector: "app-root",
@@ -15,26 +21,49 @@ export class AppComponent implements OnInit {
     private currentPath: string;
     private rootHash = environment.rootHash;
     private messageReceived: string;
+    private topic: string;
+    private user: hexValue;
+    private creating: boolean;
 
     constructor(
       private swarmService: SwarmService,
-      private eventsService: EventsService) {
+      private eventsService: EventsService,
+      private feedsService: FeedsService) {
     }
 
     async ngOnInit(): Promise<void> {
+        await this.subscribeMessages();
+        const key: string = localStorage.getItem(this.property(KEY_PROPERTY));
+        if (key !== null) {
+            await this.initServices(key);
+        }
+    }
+
+    private async initServices(key: string) {
+        this.user = this.feedsService.setKey(key);
+        const feed = await this.feedsService.listFeed('kortatu', this.user);
+        if (feed != null) {
+            console.log('Root hash in feed: ' + feed);
+            this.rootHash = feed;
+            this.listEntries();
+        } else {
+            // creating feed
+            this.creating = true;
+            const feedhash = await this.feedsService.createFeed('kortatu', this.user, environment.rootHash);
+            console.log("New feed created!", feedhash.toString());
+            const feedCreated = await this.feedsService.listFeed('kortatu', this.user);
+            this.rootHash = feedCreated;
+            this.creating = false;
+            this.listEntries();
+        }
+    }
+
+    private async subscribeMessages() {
         await this.eventsService.initConnections();
         await this.eventsService.subscribeToTopic(payload => {
-                this.messageReceived = payload.msg.toString();
-                console.log(`received message from ${payload.key}: ${payload.msg.toString()}`);
+            this.messageReceived = payload.msg.toString();
+            console.log(`received message from ${payload.key}: ${payload.msg.toString()}`);
         });
-        const rootHashFromStorage: string = localStorage.getItem('rootHash');
-        if (rootHashFromStorage !== null) {
-            console.log("Root hash in storage: " + rootHashFromStorage);
-            this.rootHash = rootHashFromStorage;
-        } else {
-            console.log("Root hash not in storage using default: " + this.rootHash);
-        }
-        this.listEntries();
     }
 
     async loadPathContent(path: string): Promise<void> {
@@ -47,6 +76,9 @@ export class AppComponent implements OnInit {
     async saveContent(content: string): Promise<void> {
         const newRoot = await this.swarmService.saveFileContent(environment.rootHash, this.currentPath, content);
         localStorage.setItem('rootHash', newRoot);
+        console.log("Saving new feed hash", newRoot);
+        await this.feedsService.updateFeedTopic('kortatu', this.user, newRoot);
+        console.log("Saved new feed hash");
         this.rootHash = newRoot;
         await this.listEntries();
         this.loadPathContent(this.currentPath);
@@ -61,5 +93,32 @@ export class AppComponent implements OnInit {
 
     sendMessage() {
         this.eventsService.sendMessage(this.content);
+    }
+
+    private loadRootHashFromStorageOrDefault() {
+        const rootHashFromStorage: string = localStorage.getItem('rootHash');
+        if (rootHashFromStorage !== null) {
+            console.log('Root hash in storage: ' + rootHashFromStorage);
+            this.rootHash = rootHashFromStorage;
+        } else {
+            console.log('Root hash not in storage using default: ' + this.rootHash);
+        }
+    }
+
+    async setKey(key: string): Promise<void> {
+        localStorage.setItem(this.property(KEY_PROPERTY), key);
+        await this.initServices(key);
+    }
+
+    removeKey() {
+        this.user = null;
+        localStorage.removeItem(this.property(KEY_PROPERTY));
+        this.entries = null;
+        this.content = null;
+        this.rootHash = null;
+    }
+
+    private property(key) {
+        return PROPERTY_PREFIX + PROPERTY_SEPARATOR + key;
     }
 }

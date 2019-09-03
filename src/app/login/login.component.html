@@ -1,0 +1,19 @@
+<div id="toolbar">
+    <div *ngIf="!user" style="display: flex">
+        <i class="material-icons">lock_open</i>
+        <p>
+            <label for="privateKey">
+                <input id="privateKey" type="password" [(ngModel)]="key" width="100"/>
+            </label>
+        </p>
+        <p style="padding-left: 15px">
+            <a href="#" title="Login" (click)="login()">Set key</a>
+        </p>
+    </div>
+    <div *ngIf="user" style="display: flex">
+        <i class="material-icons">lock</i>
+        <h3>{{ user.toString() }}
+            <a href="#" title="Logout" (click)="logout()">Logout</a>
+        </h3>
+    </div>
+</div>
