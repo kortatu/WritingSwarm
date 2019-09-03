@@ -2,6 +2,7 @@
     padding: 7px;
     width: 50%;
     background-color: #62626250;
+    overflow: auto;
 }
 .textzone.modified {
     background-color: #ffa80050;

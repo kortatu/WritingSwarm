@@ -9,7 +9,19 @@
 
 <div [hidden]="!user" class="main">
   <div *ngIf="entries">
-    <h2>Contents of swarm folder: (Using hash {{ rootHash }})</h2>
+    <div class="project-header">
+      <div>
+      Project:
+      <span class="title" *ngIf="!editProject">{{topic}}<em (click)="editProject = true;" class="material-icons" style="font-size: 24px">edit</em></span>
+      <span *ngIf="editProject"><input type="text" [(ngModel)]="topic">
+        <em *ngIf="editProject" (click)="changeProject()" class="material-icons" style="font-size: 24px">save</em>
+        <em *ngIf="editProject" (click)="cancelEditProject()" class="material-icons" style="font-size: 24px">cancel</em>
+      </span>
+      <p class="project-hash">(Using hash {{ rootHash }})</p>
+      </div>
+
+    </div>
+
     <ul>
       <li *ngFor="let entry of entries"><a href="#" (click)="loadPathContent(entry.path)">{{ entry.path }}</a></li>
     </ul>

@@ -19,7 +19,7 @@ export class SwarmService {
     }
 
     /**
-     * curl -F "testaco/file2.txt=Modified file ;type=text/plain" http://localhost:8500/bzz:/hash
+     * curl -F "file2.txt={Modified file} ;type=text/plain" http://localhost:8500/bzz:/{hash}
      * @param rootHash has of the swarm content root
      * @param filePath path to the location of the new or modified file
      * @param value content of the file (text-plain)

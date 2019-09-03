@@ -1,5 +1,6 @@
 .spinner {
     font-size: 36px;
+    text-align: center;
 }
 
 .main {
@@ -11,4 +12,24 @@
 
 #messager {
     display: none;
+}
+
+.title {
+    font-weight: bolder;
+    font-size: 1.7em;
+    margin-inline-start: 5px;
+    margin-inline-end: 0;
+}
+
+.project-header {
+    margin-bottom: 15px;
+    margin-top: 10px;
+    border-bottom: black 10px;
+}
+
+.project-hash {
+    float: right;
+    margin-top: 2px;
+    font-weight: lighter;
+    font-size: 0.9em;
 }

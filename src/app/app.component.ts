@@ -8,6 +8,7 @@ import {hexValue} from '@erebos/hex';
 const PROPERTY_PREFIX = 'SwarmWriter';
 const PROPERTY_SEPARATOR = '.';
 const KEY_PROPERTY = 'key';
+const TOPIC_KEY = 'topic';
 
 @Component({
   selector: "app-root",
@@ -21,9 +22,11 @@ export class AppComponent implements OnInit {
     private currentPath: string;
     private rootHash = environment.rootHash;
     private messageReceived: string;
-    private topic: string;
+    private topic: string = environment.defaultTopic;
     private user: hexValue;
     private creating: boolean;
+    editProject: boolean;
+    private messagesEnabled = false;
 
     constructor(
       private swarmService: SwarmService,
@@ -32,7 +35,9 @@ export class AppComponent implements OnInit {
     }
 
     async ngOnInit(): Promise<void> {
+        if (this.messagesEnabled) {
         await this.subscribeMessages();
+        }
         const key: string = localStorage.getItem(this.property(KEY_PROPERTY));
         if (key !== null) {
             await this.initServices(key);
@@ -41,7 +46,16 @@ export class AppComponent implements OnInit {
 
     private async initServices(key: string) {
         this.user = this.feedsService.setKey(key);
-        const feed = await this.feedsService.listFeed('kortatu', this.user);
+        const topic: string = localStorage.getItem(this.property(TOPIC_KEY));
+        if (topic !== null) {
+            console.log("Topic loaded from storage", topic);
+            this.topic = topic;
+        }
+        await this.initFeed();
+    }
+
+    private async initFeed() {
+        const feed = await this.feedsService.listFeed(this.topic, this.user);
         if (feed != null) {
             console.log('Root hash in feed: ' + feed);
             this.rootHash = feed;
@@ -49,9 +63,9 @@ export class AppComponent implements OnInit {
         } else {
             // creating feed
             this.creating = true;
-            const feedhash = await this.feedsService.createFeed('kortatu', this.user, environment.rootHash);
-            console.log("New feed created!", feedhash.toString());
-            const feedCreated = await this.feedsService.listFeed('kortatu', this.user);
+            const feedhash = await this.feedsService.createFeed(this.topic, this.user, environment.rootHash);
+            console.log('New feed created!', feedhash.toString());
+            const feedCreated = await this.feedsService.listFeed(this.topic, this.user);
             this.rootHash = feedCreated;
             this.creating = false;
             this.listEntries();
@@ -86,7 +100,7 @@ export class AppComponent implements OnInit {
     }
 
     private async listEntries(): Promise<void> {
-        const listEntries: IBzzListEntries = await this.swarmService.listPath(this.rootHash + '/testaco/');
+        const listEntries: IBzzListEntries = await this.swarmService.listPath(this.rootHash + '/');
         console.log('Obtained entries', listEntries);
         this.entries = listEntries.entries;
     }
@@ -120,5 +134,20 @@ export class AppComponent implements OnInit {
 
     private property(key) {
         return PROPERTY_PREFIX + PROPERTY_SEPARATOR + key;
+    }
+
+    async changeProject() {
+        console.log("Saving topic in localStorage", this.topic);
+        localStorage.setItem(this.property(TOPIC_KEY), this.topic);
+        await this.initFeed();
+        this.editProject = false;
+    }
+
+    cancelEditProject() {
+        this.topic = localStorage.getItem(this.property(TOPIC_KEY));
+        if (this.topic === null) {
+            this.topic = environment.defaultTopic;
+        }
+        this.editProject = false;
     }
 }

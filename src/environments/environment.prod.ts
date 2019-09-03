@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  swarmProxy: 'https://swarm-gateways.net',
 };
