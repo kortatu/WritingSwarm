@@ -16,6 +16,7 @@ const TOPIC_KEY = 'topic';
   styleUrls: ["./app.component.css"]
 })
 export class AppComponent implements OnInit {
+    LOGO = require('./assets/Writing Swarm-logo-black_lifesavers_bee.png')
     title = "WritingSwarm";
     private entries: IBzzListEntry[];
     private content: string;
@@ -25,8 +26,8 @@ export class AppComponent implements OnInit {
     private topic: string = environment.defaultTopic;
     private user: hexValue;
     private creating: boolean;
-    editProject: boolean;
-    private messagesEnabled = false;
+    private editProject: boolean;
+    private messagesEnabled = true;
 
     constructor(
       private swarmService: SwarmService,
@@ -82,7 +83,6 @@ export class AppComponent implements OnInit {
 
     async loadPathContent(path: string): Promise<void> {
       const content: string = await this.swarmService.getStringContent(this.rootHash + "/" + path);
-      console.log("Obtained content", content);
       this.currentPath = path;
       this.content = content;
     }
@@ -91,7 +91,7 @@ export class AppComponent implements OnInit {
         const newRoot = await this.swarmService.saveFileContent(environment.rootHash, this.currentPath, content);
         localStorage.setItem('rootHash', newRoot);
         console.log("Saving new feed hash", newRoot);
-        await this.feedsService.updateFeedTopic('kortatu', this.user, newRoot);
+        await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
         console.log("Saved new feed hash");
         this.rootHash = newRoot;
         await this.listEntries();

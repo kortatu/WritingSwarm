@@ -3,7 +3,7 @@
   <h1>
     Welcome to
   </h1>
-  <img width="400" alt="Kort ales Logo" src="../assets/Writing Swarm-logo-black_lifesavers.png">
+  <img width="400" alt="Kort ales Logo" [src]="LOGO" />
 </div>
 <app-login (loginMade)="setKey($event)" (logoutMade)="removeKey()" [user]="user"></app-login>
 

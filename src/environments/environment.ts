@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   swarmProxy: 'http://localhost:8500',
+  swarmWsProxy: 'ws://localhost:8501',
   rootHash: 'c5030a773423006498a111f4b8684f214a015e48a54d3bb172d6d9e47046568b',
   defaultTopic: 'WritingSwarm',
 };

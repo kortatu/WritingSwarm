@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {environment} from '../environments/environment';
 import {HttpClient} from '@angular/common/http';
-import {createHex, hexValue} from '@erebos/hex';
+import {hexValue} from '@erebos/hex';
 import {Bzz, SignBytesFunc} from '@erebos/api-bzz-browser';
 import {pubKeyToAddress} from '@erebos/keccak256';
 import {createKeyPair, sign} from '@erebos/secp256k1';
@@ -13,6 +13,7 @@ export class FeedsService {
     proxy = environment.swarmProxy;
     private bzz: Bzz;
     private user: hexValue;
+    public updatePending: boolean;
 
     constructor(private http: HttpClient) {
     }
@@ -33,24 +34,10 @@ export class FeedsService {
     }
 
     public async listFeed(topic: string, user: hexValue): Promise<string> {
-        const topicHex = createHex(topic).value;
-        const userHex = createHex(user).value;
-        console.log(`Topic ${topicHex} user ${userHex}`);
-
-        const feedContent = this.http.get(
-            `${this.proxy}/bzz-feed:/?name=${topic}&user=${userHex}`,
-            {responseType: 'arraybuffer'}
-        );
-        const buffer = await feedContent.toPromise()
-            .catch(reason => {
-                console.log('Error reason', reason);
-                return null;
-            });
-        if (buffer != null) {
-            const hex = Buffer.from(new Uint8Array(buffer)).toString('hex');
-            console.log("hex", hex);
-            return hex;
-        } else {
+        try {
+            return await this.bzz.getFeedContentHash({user, name: topic});
+        } catch (e) {
+            console.log("Feed not found ", topic, user);
             return null;
         }
     }
@@ -77,8 +64,22 @@ export class FeedsService {
             name: topic,
             user,
         };
+        this.updatePending = true;
         await this.bzz.setFeedContentHash(feedParams, content);
         console.log('Updated feed hash');
+        this.checkCompletedChanges(feedParams, content);
+    }
+
+    private checkCompletedChanges(feedParams, expected: string) {
+        this.bzz.getFeedContentHash(feedParams).then((hasRetrieved: string) => {
+            console.log('Retrieved hash:', hasRetrieved);
+            if (hasRetrieved === expected) {
+                this.updatePending = false;
+            } else {
+                console.log('Still waiting:');
+                this.checkCompletedChanges(feedParams, expected);
+            }
+        });
     }
 }
 
