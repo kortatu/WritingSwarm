@@ -18,16 +18,16 @@ const TOPIC_KEY = 'topic';
 export class AppComponent implements OnInit {
     LOGO = require('./assets/Writing Swarm-logo-black_lifesavers_bee.png')
     title = "WritingSwarm";
-    private entries: IBzzListEntry[];
-    private content: string;
-    private currentPath: string;
-    private rootHash = environment.rootHash;
-    private messageReceived: string;
-    private topic: string = environment.defaultTopic;
-    private user: hexValue;
-    private creating: boolean;
-    private editProject: boolean;
-    private messagesEnabled = true;
+    public entries: IBzzListEntry[];
+    public content: string;
+    public currentPath: string;
+    public rootHash = environment.rootHash;
+    public messageReceived: string;
+    public topic: string = environment.defaultTopic;
+    public user: hexValue;
+    public creating: boolean;
+    public editProject: boolean;
+    public messagesEnabled = true;
 
     constructor(
       private swarmService: SwarmService,

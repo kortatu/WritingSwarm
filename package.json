@@ -25,7 +25,6 @@
     "@erebos/swarm-browser": "0.9.0",
     "@mainframe/rpc-ws-browser": "0.3.0",
     "buffer": "^5.4.2",
-    "http-server": "^0.11.1",
     "rxjs": "~6.4.0",
     "tslib": "^1.9.0",
     "zone.js": "~0.9.1"
