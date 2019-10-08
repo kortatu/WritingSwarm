@@ -16,7 +16,7 @@ const TOPIC_KEY = 'topic';
   styleUrls: ["./app.component.css"]
 })
 export class AppComponent implements OnInit {
-    LOGO = require('./assets/Writing Swarm-logo-black_lifesavers_bee.png')
+    LOGO = require('./assets/Writing Swarm-logo-black_lifesavers_bee.png');
     title = "WritingSwarm";
     public entries: IBzzListEntry[];
     public content: string;
@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
     public user: hexValue;
     public creating: boolean;
     public editProject: boolean;
-    public messagesEnabled = true;
+    public messagesEnabled = false;
 
     constructor(
       private swarmService: SwarmService,
@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
 
     async ngOnInit(): Promise<void> {
         if (this.messagesEnabled) {
-        await this.subscribeMessages();
+            await this.subscribeMessages();
         }
         const key: string = localStorage.getItem(this.property(KEY_PROPERTY));
         if (key !== null) {
@@ -103,6 +103,9 @@ export class AppComponent implements OnInit {
         const listEntries: IBzzListEntries = await this.swarmService.listPath(this.rootHash + '/');
         console.log('Obtained entries', listEntries);
         this.entries = listEntries.entries;
+        if (this.entries.length === 1) {
+            this.loadPathContent(this.entries[0].path);
+        }
     }
 
     sendMessage() {

@@ -1,11 +1,10 @@
 .spinner {
-    font-size: 36px;
     text-align: center;
 }
 
 .main {
     margin: 10px 5px 10px 5px;
-    background-color: #efefef;
+    background-color: #fff;
     padding: 2px 2px 2px 15px;
     box-shadow: rgba(0, 0, 0.14, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px, rgba(0, 0, 0.2, 0.2) 0px 3px 1px -2px;
 }
@@ -32,4 +31,26 @@
     margin-top: 2px;
     font-weight: lighter;
     font-size: 0.9em;
+}
+
+.mat-drawer-container {
+    background-color: #ffffff;
+}
+
+.mat-drawer nav a {
+    display: block;
+    text-decoration: none;
+    color: rgba(255,255,255,.54);
+}
+
+.mat-drawer nav a.itemSelected {
+    color: #ffa500;
+}
+
+.mat-drawer nav a:hover {
+    color: #ffa500;
+}
+
+.mat-drawer-content .mat-card {
+    box-shadow: 0 0 0 0 ;
 }

@@ -1,6 +1,7 @@
-<div id="toolbar">
+<mat-toolbar id="toolbar">
+<!--<div id="toolbar">-->
     <div *ngIf="!user" style="display: flex">
-        <i class="material-icons">lock_open</i>
+        <i class="material-icons open">lock_open</i>
         <p>
             <label for="privateKey">
                 <input id="privateKey" type="password" [(ngModel)]="key" width="100"/>
@@ -11,9 +12,10 @@
         </p>
     </div>
     <div *ngIf="user" style="display: flex">
-        <i class="material-icons">lock</i>
-        <h3>{{ user.toString() }}
-            <a href="#" title="Logout" (click)="logout()">Logout</a>
-        </h3>
+        <i class="material-icons closed">lock</i>
+        <div>{{ user.toString() }}
+            <a href="#" title="Logout" (click)="logout()" class="logout">Logout</a>
+        </div>
     </div>
-</div>
+<!--</div>-->
+</mat-toolbar>

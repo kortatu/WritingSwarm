@@ -1,11 +1,30 @@
-<h3> <em class="fa fa-file-word-o"></em>{{ path }}</h3>
-<h5>Original content</h5>
-<pre class="textzone" [innerHTML]="originalSanitized"></pre>
-<hr/>
-<textarea class="editzone" #myInput (keyup)="changeContent()" [(ngModel)]="content"></textarea>
+<mat-card style="box-shadow: none;">
+    <mat-card-header>
+        <em mat-card-sm-image class="fa fa-file-word-o"></em>
+        <mat-card-title> {{ path }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+<!--        <h5>Original content</h5>-->
+<!--        <pre class="textzone" [innerHTML]="originalSanitized"></pre>-->
+<!--        <hr/>-->
+        <div class="editor_grid">
+            <div class="editor_column editing">
+                <div class="editor_column_header">Editing</div>
+                <mat-form-field>
+                    <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="2" #autosize="cdkTextareaAutosize"
+                      class="editzone" #myInput (keyup)="changeContent()" [(ngModel)]="content"></textarea>
+                </mat-form-field>
+            </div>
+            <div class="editor_column">
+                <div class="editor_column_header">Preview</div>
+                <pre class="textzone" [class.modified]="modified" [innerHTML]="sanitized"></pre>
+            </div>
+        </div>
+        <mat-divider></mat-divider>
+        <mat-card-actions>
+            <button title="Save Content" *ngIf="modified" (click)="saveContent()">Save Content</button>
+        </mat-card-actions>
 
-<br/>
-<button title="Save Content" *ngIf="modified" (click)="saveContent()">Save Content</button>
-<h5>Preview</h5>
-<pre class="textzone" [class.modified]="modified" [innerHTML]="sanitized"></pre>
+    </mat-card-content>
 
+</mat-card>
