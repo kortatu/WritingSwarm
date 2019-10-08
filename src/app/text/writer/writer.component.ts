@@ -1,5 +1,6 @@
 import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
+import {CdkTextareaAutosize} from '@angular/cdk/text-field';
 
 
 @Component({
@@ -29,6 +30,9 @@ export class WriterComponent implements AfterViewInit {
   modified: boolean;
   @ViewChild("myInput", { static: true })
   myInput: ElementRef<HTMLInputElement>;
+
+  @ViewChild('autosize', { static: false })
+  txtAreaAutosize: CdkTextareaAutosize;
 
   constructor(private sanitizer: DomSanitizer) { }
 

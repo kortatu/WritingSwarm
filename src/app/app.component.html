@@ -1,40 +1,49 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to
-  </h1>
-  <img width="400" alt="Kort ales Logo" [src]="LOGO" />
-</div>
 <app-login (loginMade)="setKey($event)" (logoutMade)="removeKey()" [user]="user"></app-login>
-
-<div [hidden]="!user" class="main">
+<mat-card style="padding-top: 30px; padding-bottom: 0px; align-items: center;text-align:center;flex: 0;display: flex;flex-direction: column;background: linear-gradient(to right, #ffa500, #ffbb60); color: #000">
+    <img width="400" alt="Kort ales Logo" [src]="LOGO" />
+</mat-card>
+<mat-card *ngIf="user">
   <div *ngIf="entries">
-    <div class="project-header">
-      <div>
-      Project:
-      <span class="title" *ngIf="!editProject">{{topic}}<em (click)="editProject = true;" class="material-icons" style="font-size: 24px">edit</em></span>
+    <mat-card-header class="project-header">
+      <mat-card-subtitle>Project:</mat-card-subtitle>
+      <mat-card-title class="title" *ngIf="!editProject">{{topic}}<em (click)="editProject = true;" class="material-icons" style="font-size: 24px">edit</em></mat-card-title>
       <span *ngIf="editProject"><input type="text" [(ngModel)]="topic">
         <em *ngIf="editProject" (click)="changeProject()" class="material-icons" style="font-size: 24px">save</em>
         <em *ngIf="editProject" (click)="cancelEditProject()" class="material-icons" style="font-size: 24px">cancel</em>
       </span>
-      <p class="project-hash">(Using hash {{ rootHash }})</p>
-      </div>
+<!--      <p class="project-hash">(Using hash {{ rootHash }})</p>-->
+    </mat-card-header>
 
-    </div>
-
-    <ul>
-      <li *ngFor="let entry of entries"><a href="#" (click)="loadPathContent(entry.path)">{{ entry.path }}</a></li>
-    </ul>
-    <div id="content" [hidden]="!content">
-      <app-writer [path]="currentPath" [content]="content" (contentChange)="saveContent($event)"></app-writer>
-    </div>
+    <mat-drawer-container>
+      <mat-drawer mode="side" opened style="background: #333; margin: 5px">
+        <nav style="padding: 5px 0px 2px 5px;">
+          <ul style="list-style-type: none;padding-inline-start: 5px; margin: 0 0 5px; overflow: hidden">
+            <li style="margin: 0;padding: 5px 15px 5px 20px;" *ngFor="let entry of entries" >
+              <a href="#" (click)="loadPathContent(entry.path)" [ngClass]="{'itemSelected': currentPath==entry.path}">{{ entry.path }}</a>
+            </li>
+          </ul>
+          <ul style="list-style-type: none;padding-inline-start: 5px; margin: 0 0 5px; overflow: hidden">
+            <li style="margin: 0;padding: 5px 15px 5px 20px;" *ngFor="let entry of entries" >
+              <a href="#" (click)="null" >Add File...</a>
+            </li>
+          </ul>
+        </nav>
+      </mat-drawer>
+      <mat-drawer-content style="padding-left: 20px">
+        <app-writer id="content" *ngIf="content" [path]="currentPath" [content]="content" (contentChange)="saveContent($event)"></app-writer>
+        <mat-card-content *ngIf="!content" style="min-height: 100px; ">
+          Select a file from the list
+        </mat-card-content>
+      </mat-drawer-content>
+    </mat-drawer-container>
   </div>
-  <div *ngIf="!creating && !rootHash" class="spinner"><em class="fa fa-spinner fa-spin"></em>Loading feed...</div>
-  <div *ngIf="creating" class="spinner"><em class="fa fa-spinner fa-spin"></em>Creating feed...</div>
-  <div *ngIf="!creating && !entries && rootHash" class="spinner"><em class="fa fa-spinner fa-spin"></em>Loading content...</div>
-</div>
-<div id="messager">
+
+  <mat-card-title *ngIf="!creating && !rootHash" class="spinner"><em class="fa fa-spinner fa-spin"></em>Loading feed...</mat-card-title>
+  <mat-card-title *ngIf="creating" class="spinner"><em class="fa fa-spinner fa-spin"></em>Creating feed...</mat-card-title>
+  <mat-card-title *ngIf="!creating && !entries && rootHash" class="spinner"><em class="fa fa-spinner fa-spin"></em>Loading content...</mat-card-title>
+</mat-card>
+<mat-card id="messager" *ngIf="user" style="flex: 1;display: flex;flex-direction: column;background: #fff;">
   <a (click)="sendMessage()">Send Message</a>
 
   <pre class="textzone">{{ messageReceived }}</pre>
-</div>
+</mat-card>
