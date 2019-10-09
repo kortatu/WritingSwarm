@@ -1,8 +1,13 @@
+.main {
+    box-shadow: none;
+}
+
 .textzone {
     padding: 7px;
     background-color: white;
     overflow: auto;
 }
+
 .textzone.modified {
     background-color: antiquewhite;
 }
@@ -45,9 +50,27 @@
     align-items: center;
 }
 
+.editor_column_header a {
+    text-decoration: none;
+    color: white;
+}
+.editor_column_header a:hover {
+    text-decoration: none;
+    color: #ffa500;
+}
+
 .editor_column.editing {
-    flex-basis: 50%;
+    flex: 1 1 30%;
     margin-right: 5px
+}
+
+.editor_column.right {
+    flex: 1 1 30%;
+    /*flex-basis: 30%;*/
+}
+
+.editor_column.right .editor_column_header {
+    justify-content: space-between
 }
 
 .editor_column.editing mat-form-field {
