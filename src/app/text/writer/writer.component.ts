@@ -14,6 +14,8 @@ export class WriterComponent implements AfterViewInit {
   path: string;
   content: string;
   sanitized: SafeHtml;
+  rightPanel: SafeHtml;
+  private showingPreview = true;
   @Input('content')
   set _content(val: string) {
     this.content = val;
@@ -21,6 +23,7 @@ export class WriterComponent implements AfterViewInit {
     this.sanitized = this.sanitizer.bypassSecurityTrustHtml(this.converter.makeHtml(val));
     this.originalSanitized = this.sanitized;
     this.modified = false;
+    this.adjustRightPanel();
   }
   originalContent: string;
   originalSanitized: SafeHtml;
@@ -34,7 +37,8 @@ export class WriterComponent implements AfterViewInit {
   @ViewChild('autosize', { static: false })
   txtAreaAutosize: CdkTextareaAutosize;
 
-  private converter: showdown.Converter;
+  converter: showdown.Converter;
+  switchText: string;
 
   constructor(private sanitizer: DomSanitizer) {
     this.converter = new showdown.Converter({
@@ -50,6 +54,7 @@ export class WriterComponent implements AfterViewInit {
   changeContent() {
     this.modified = this.originalContent !== this.content;
     this.sanitized = this.sanitizer.bypassSecurityTrustHtml(this.converter.makeHtml(this.content));
+    this.adjustRightPanel();
   }
 
   async saveContent(): Promise<void> {
@@ -61,4 +66,13 @@ export class WriterComponent implements AfterViewInit {
   [path]: environment.proxy/bzz:/rootHash+path
    */
 
+  switchOriginal() {
+    this.showingPreview = !this.showingPreview;
+    this.adjustRightPanel();
+  }
+
+  private adjustRightPanel() {
+    this.switchText = this.showingPreview ? 'Original' : 'Preview';
+    this.rightPanel = this.showingPreview ? this.sanitized : this.originalSanitized;
+  }
 }

@@ -1,12 +1,9 @@
-<mat-card style="box-shadow: none;">
+<mat-card class="main">
     <mat-card-header>
         <em mat-card-sm-image class="fa fa-file-word-o"></em>
         <mat-card-title> {{ path }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-<!--        <h5>Original content</h5>-->
-<!--        <pre class="textzone" [innerHTML]="originalSanitized"></pre>-->
-<!--        <hr/>-->
         <div class="editor_grid">
             <div class="editor_column editing">
                 <div class="editor_column_header">Editing</div>
@@ -15,11 +12,18 @@
                               class="editzone" #myInput (keyup)="changeContent()" [(ngModel)]="content"></textarea>
                 </mat-form-field>
             </div>
-            <div class="editor_column">
-                <div class="editor_column_header">Preview
-                    <span *ngIf="modified">(Modified)</span>
+            <div class="editor_column right">
+                <div class="editor_column_header">
+                    <span *ngIf="showingPreview">Preview <span *ngIf="modified">(Modified)</span> </span>
+                    <span *ngIf="!showingPreview">Original</span>
+                    <span>
+                        <a *ngIf="modified" (click)="switchOriginal()" class="action" matTooltip="Show {{switchText}}">
+                            <mat-icon aria-label="View original content">search</mat-icon>
+                        </a>
+                        <a><mat-icon aria-label="Show result in pop-up" class="action" matTooltip="Show in pop_up">launch</mat-icon></a>
+                    </span>
                 </div>
-                <div class="textzone" [class.modified]="modified" [innerHTML]="sanitized"></div>
+                <div class="textzone" [class.modified]="modified && showingPreview" [innerHTML]="rightPanel"></div>
             </div>
         </div>
         <mat-divider></mat-divider>

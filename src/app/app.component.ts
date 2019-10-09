@@ -4,6 +4,8 @@ import {IBzzListEntries, IBzzListEntry, SwarmService} from './swarm.service';
 import {EventsService} from './events.service';
 import {FeedsService} from './feeds.service';
 import {hexValue} from '@erebos/hex';
+import {MatDialog} from '@angular/material';
+import {NewfileComponent, NewfileData} from './newfile/newfile.component';
 
 const PROPERTY_PREFIX = 'SwarmWriter';
 const PROPERTY_SEPARATOR = '.';
@@ -32,14 +34,19 @@ export class AppComponent implements OnInit {
     constructor(
       private swarmService: SwarmService,
       private eventsService: EventsService,
-      private feedsService: FeedsService) {
+      private feedsService: FeedsService,
+      private newFileDialog: MatDialog) {
+    }
+
+    static property(key): string {
+        return PROPERTY_PREFIX + PROPERTY_SEPARATOR + key;
     }
 
     async ngOnInit(): Promise<void> {
         if (this.messagesEnabled) {
             await this.subscribeMessages();
         }
-        const key: string = localStorage.getItem(this.property(KEY_PROPERTY));
+        const key: string = localStorage.getItem(AppComponent.property(KEY_PROPERTY));
         if (key !== null) {
             await this.initServices(key);
         }
@@ -47,7 +54,7 @@ export class AppComponent implements OnInit {
 
     private async initServices(key: string) {
         this.user = this.feedsService.setKey(key);
-        const topic: string = localStorage.getItem(this.property(TOPIC_KEY));
+        const topic: string = localStorage.getItem(AppComponent.property(TOPIC_KEY));
         if (topic !== null) {
             console.log("Topic loaded from storage", topic);
             this.topic = topic;
@@ -88,13 +95,42 @@ export class AppComponent implements OnInit {
     }
 
     async saveContent(content: string): Promise<void> {
-        const newRoot = await this.swarmService.saveFileContent(environment.rootHash, this.currentPath, content);
+        const newRoot = await this.swarmService.saveFileContent(this.rootHash, this.currentPath, content);
         localStorage.setItem('rootHash', newRoot);
         console.log("Saving new feed hash", newRoot);
         await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
         console.log("Saved new feed hash");
         this.rootHash = newRoot;
         await this.listEntries();
+        this.loadPathContent(this.currentPath);
+        this.content = content;
+    }
+
+    async openNewDialog(): Promise<void> {
+        const dialogRef = this.newFileDialog.open(NewfileComponent, {
+            width: '250px',
+            data: {fileName: '', type: 'md'} ,
+        });
+        dialogRef.afterClosed().subscribe((result: NewfileData) => {
+            console.log('The dialog was closed');
+            let fileName = result.name;
+            if (result.type === 'md') {
+                if (!result.name.endsWith(".md")) {
+                    fileName = result.name + ".md";
+                }
+            }
+            this.addNewFile(fileName, "# " + result.name);
+        });
+        return;
+    }
+
+    async addNewFile(fileName: string, content: string): Promise<void> {
+        const newRoot = await this.swarmService.saveFileContent(this.rootHash, fileName, content);
+        localStorage.setItem('rootHash', newRoot);
+        await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
+        this.rootHash = newRoot;
+        await this.listEntries();
+        this.currentPath = fileName;
         this.loadPathContent(this.currentPath);
         this.content = content;
     }
@@ -123,31 +159,27 @@ export class AppComponent implements OnInit {
     }
 
     async setKey(key: string): Promise<void> {
-        localStorage.setItem(this.property(KEY_PROPERTY), key);
+        localStorage.setItem(AppComponent.property(KEY_PROPERTY), key);
         await this.initServices(key);
     }
 
     removeKey() {
         this.user = null;
-        localStorage.removeItem(this.property(KEY_PROPERTY));
+        localStorage.removeItem(AppComponent.property(KEY_PROPERTY));
         this.entries = null;
         this.content = null;
         this.rootHash = null;
     }
 
-    private property(key) {
-        return PROPERTY_PREFIX + PROPERTY_SEPARATOR + key;
-    }
-
     async changeProject() {
         console.log("Saving topic in localStorage", this.topic);
-        localStorage.setItem(this.property(TOPIC_KEY), this.topic);
+        localStorage.setItem(AppComponent.property(TOPIC_KEY), this.topic);
         await this.initFeed();
         this.editProject = false;
     }
 
     cancelEditProject() {
-        this.topic = localStorage.getItem(this.property(TOPIC_KEY));
+        this.topic = localStorage.getItem(AppComponent.property(TOPIC_KEY));
         if (this.topic === null) {
             this.topic = environment.defaultTopic;
         }

@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>Add new file</h1>
+<div mat-dialog-content>
+    <p>Name</p>
+    <mat-form-field>
+        <input matInput [(ngModel)]="data.name">
+    </mat-form-field>
+</div>
+<div mat-dialog-actions style="display: flex; justify-content: space-between">
+    <button mat-button (click)="onNoClick()">Dismiss</button>
+    <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Ok</button>
+</div>

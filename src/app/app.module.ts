@@ -7,19 +7,21 @@ import {FormsModule} from '@angular/forms';
 import { LoginComponent } from './login/login.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import {
-  MatCardModule,
+  MatCardModule, MatDialogModule,
   MatDividerModule,
   MatFormFieldModule,
-  MatGridListModule, MatInputModule,
+  MatGridListModule, MatIconModule, MatInputModule,
   MatSidenavModule,
-  MatToolbarModule
+  MatToolbarModule, MatTooltipModule
 } from '@angular/material';
+import { NewfileComponent } from './newfile/newfile.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     WriterComponent,
-    LoginComponent
+    LoginComponent,
+    NewfileComponent
   ],
   imports: [
     BrowserModule,
@@ -33,6 +35,12 @@ import {
     MatGridListModule,
     MatFormFieldModule,
     MatInputModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatDialogModule,
+  ],
+  entryComponents: [
+      NewfileComponent
   ],
   providers: [],
   bootstrap: [AppComponent]
