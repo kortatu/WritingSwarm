@@ -1,10 +1,10 @@
 .textzone {
     padding: 7px;
-    background-color: #62626250;
+    background-color: white;
     overflow: auto;
 }
 .textzone.modified {
-    background-color: #ffa80050;
+    background-color: antiquewhite;
 }
 
 .mat-card-sm-image {
@@ -12,7 +12,13 @@
 }
 
 .editzone {
+    background-color: #fdfdfd;
     height: 97%;
+    font-family: Consolas,"Liberation Mono",Courier,monospace;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #ccc;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .editor_grid {
@@ -48,3 +54,79 @@
     flex: 5 0 auto;
 }
 
+/* Markdown html preview */
+
+::ng-deep .textzone pre {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    background-color: #f8f8f8;
+    border: 1px solid #dfdfdf;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    padding: 0.125rem 0.3125rem 0.0625rem;
+}
+
+::ng-deep .textzone code {
+    background-color: #f8f8f8;
+    border-color: #dfdfdf;
+    border-style: solid;
+    border-width: 1px;
+    color: #333;
+    font-family: Consolas,"Liberation Mono",Courier,monospace;
+    font-weight: normal;
+    padding: 0.125rem 0.3125rem 0.0625rem
+}
+
+::ng-deep .textzone table {
+    background: #fff;
+    border: solid 1px #ddd;
+    margin-bottom: 1.25rem;
+    table-layout: auto
+}
+
+::ng-deep .textzone table caption {
+    background: transparent;
+    color: #222;
+    font-size: 1rem;
+    font-weight: bold
+}
+
+::ng-deep .textzone table thead {
+    background: #F5F5F5
+}
+
+::ng-deep .textzone table thead tr th,table thead tr td {
+    color: #222;
+    font-size: 0.875rem;
+    font-weight: bold;
+    padding: 0.5rem 0.625rem 0.625rem
+}
+
+::ng-deep .textzone table tfoot {
+    background: #F5F5F5
+}
+
+::ng-deep .textzone table tfoot tr th,::ng-deep .textzone table tfoot tr td {
+    color: #222;
+    font-size: 0.875rem;
+    font-weight: bold;
+    padding: 0.5rem 0.625rem 0.625rem
+}
+
+::ng-deep .textzone table tr th,table tr td {
+    color: #222;
+    font-size: 0.875rem;
+    padding: 0.5625rem 0.625rem;
+    text-align: left
+}
+
+::ng-deep .textzone table tr.even,table tr.alt,table tr:nth-of-type(even) {
+    background: #F9F9F9
+}
+
+::ng-deep .textzone table thead tr th,table tfoot tr th,table tfoot tr td,table tbody tr th,table tbody tr td,table tr td {
+    display: table-cell;
+    line-height: 1.125rem
+}

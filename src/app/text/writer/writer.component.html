@@ -11,13 +11,15 @@
             <div class="editor_column editing">
                 <div class="editor_column_header">Editing</div>
                 <mat-form-field>
-                    <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="2" #autosize="cdkTextareaAutosize"
-                      class="editzone" #myInput (keyup)="changeContent()" [(ngModel)]="content"></textarea>
+                    <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="25" #autosize="cdkTextareaAutosize"
+                              class="editzone" #myInput (keyup)="changeContent()" [(ngModel)]="content"></textarea>
                 </mat-form-field>
             </div>
             <div class="editor_column">
-                <div class="editor_column_header">Preview</div>
-                <pre class="textzone" [class.modified]="modified" [innerHTML]="sanitized"></pre>
+                <div class="editor_column_header">Preview
+                    <span *ngIf="modified">(Modified)</span>
+                </div>
+                <div class="textzone" [class.modified]="modified" [innerHTML]="sanitized"></div>
             </div>
         </div>
         <mat-divider></mat-divider>

@@ -1,7 +1,7 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
-import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {CdkTextareaAutosize} from '@angular/cdk/text-field';
-
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
+import * as showdown from 'showdown';
 
 @Component({
   selector: 'app-writer',
@@ -18,7 +18,7 @@ export class WriterComponent implements AfterViewInit {
   set _content(val: string) {
     this.content = val;
     this.originalContent = val;
-    this.sanitized = this.sanitizer.bypassSecurityTrustHtml(val);
+    this.sanitized = this.sanitizer.bypassSecurityTrustHtml(this.converter.makeHtml(val));
     this.originalSanitized = this.sanitized;
     this.modified = false;
   }
@@ -34,7 +34,14 @@ export class WriterComponent implements AfterViewInit {
   @ViewChild('autosize', { static: false })
   txtAreaAutosize: CdkTextareaAutosize;
 
-  constructor(private sanitizer: DomSanitizer) { }
+  private converter: showdown.Converter;
+
+  constructor(private sanitizer: DomSanitizer) {
+    this.converter = new showdown.Converter({
+      tables: true,
+      strikethrough: true,
+    });
+  }
 
   ngAfterViewInit(): void {
     this.myInput.nativeElement.focus();
@@ -42,11 +49,16 @@ export class WriterComponent implements AfterViewInit {
 
   changeContent() {
     this.modified = this.originalContent !== this.content;
-    this.sanitized = this.sanitizer.bypassSecurityTrustHtml(this.content);
+    this.sanitized = this.sanitizer.bypassSecurityTrustHtml(this.converter.makeHtml(this.content));
   }
 
   async saveContent(): Promise<void> {
     this.contentChange.emit(this.content);
   }
+
+  /*
+  [WritingSwarm.md]: http://localhost:8500/bzz:/3031a439391f543516d7e519f1ae79cee75eacde21941dfd70eea5e75571d20a/WritingSwarm.md
+  [path]: environment.proxy/bzz:/rootHash+path
+   */
 
 }
