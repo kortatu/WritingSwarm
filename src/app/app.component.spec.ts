@@ -1,15 +1,17 @@
-import { TestBed, async } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import {async, TestBed} from '@angular/core/testing';
+import {AppComponent} from './app.component';
 import {LoginComponent} from './login/login.component';
 import {
-  MAT_DIALOG_DATA,
-  MatCardModule, MatDialogModule, MatDialogRef,
+  MatCardModule,
+  MatDialogModule,
+  MatDialogRef,
   MatDividerModule,
   MatFormFieldModule,
   MatIconModule,
   MatInputModule,
   MatSidenavModule,
-  MatToolbarModule, MatTooltipModule
+  MatToolbarModule,
+  MatTooltipModule
 } from '@angular/material';
 import {WriterComponent} from './text/writer/writer.component';
 import {FormsModule} from '@angular/forms';
@@ -20,33 +22,29 @@ import {ChangeDetectorRef} from '@angular/core';
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [
-        AppComponent,
-        LoginComponent,
-        WriterComponent,
-      ],
+      declarations: [ AppComponent, LoginComponent, WriterComponent],
       imports: [MatCardModule, MatSidenavModule, MatIconModule, MatDividerModule,
-                FormsModule, MatFormFieldModule, MatInputModule,
-                MatToolbarModule, MatTooltipModule, MatDialogModule],
+        FormsModule, MatFormFieldModule, MatInputModule,
+        MatToolbarModule, MatTooltipModule, MatDialogModule],
       providers: [
-          {provide: HttpClient, useClass: MockHttpClient},
-          {provide: MatDialogRef,
-            useValue: {
-              close: () => {}
-            }
-          },
-          {provide: DomSanitizer,
-            useValue: {
-              sanitize: s => s,
-              bypassSecurityTrustHtml: s => s
-            }
-          },
-          {provide: ChangeDetectorRef,
-            useValue: {
-              markForCheck: () => {},
-              detectChanges: () => {},
-            }
+        {provide: HttpClient, useClass: MockHttpClient},
+        {provide: MatDialogRef,
+          useValue: {
+            close: () => {}
           }
+        },
+        {provide: DomSanitizer,
+          useValue: {
+            sanitize: s => s,
+            bypassSecurityTrustHtml: s => s
+          }
+        },
+        {provide: ChangeDetectorRef,
+          useValue: {
+            markForCheck: () => {},
+            detectChanges: () => {},
+          }
+        }
       ]
     }).compileComponents();
   }));
@@ -68,13 +66,12 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
     const htmlImageElement = compiled.querySelector('img');
-    console.log("htmlImageElement", htmlImageElement);
     expect(htmlImageElement).not.toBeNull();
-    expect(htmlImageElement.getAttribute("alt"))
-        .toContain('Writing Swarm Logo');
+    expect(htmlImageElement.getAttribute('alt')).toContain('Writing Swarm Logo');
   });
 });
 
 class MockHttpClient {
-  constructor() {}
+  constructor() {
+  }
 }

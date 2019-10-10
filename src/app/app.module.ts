@@ -8,7 +8,7 @@ import { LoginComponent } from './login/login.component';
 import { NewfileComponent } from './newfile/newfile.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import {
-  MatAutocompleteModule,
+  MatButtonModule,
   MatCardModule, MatDialogModule,
   MatDividerModule,
   MatFormFieldModule,
@@ -39,6 +39,7 @@ import {
     MatIconModule,
     MatTooltipModule,
     MatDialogModule,
+    MatButtonModule,
   ],
   entryComponents: [
       NewfileComponent
