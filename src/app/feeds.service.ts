@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import {environment} from '../environments/environment';
-import {HttpClient} from '@angular/common/http';
 import {hexValue} from '@erebos/hex';
 import {Bzz, SignBytesFunc} from '@erebos/api-bzz-browser';
 import {pubKeyToAddress} from '@erebos/keccak256';
@@ -15,7 +14,7 @@ export class FeedsService {
     private user: hexValue;
     public updatePending: boolean;
 
-    constructor(private http: HttpClient) {
+    constructor() {
     }
 
     setKey(key: string): hexValue {

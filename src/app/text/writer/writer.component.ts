@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {CdkTextareaAutosize} from '@angular/cdk/text-field';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import * as showdown from 'showdown';
@@ -15,7 +15,7 @@ export class WriterComponent implements AfterViewInit {
   content: string;
   sanitized: SafeHtml;
   rightPanel: SafeHtml;
-  private showingPreview = true;
+  showingPreview = true;
   @Input('content')
   set _content(val: string) {
     this.content = val;
@@ -40,7 +40,8 @@ export class WriterComponent implements AfterViewInit {
   converter: showdown.Converter;
   switchText: string;
 
-  constructor(private sanitizer: DomSanitizer) {
+  constructor(private sanitizer: DomSanitizer,
+              private ref: ChangeDetectorRef) {
     this.converter = new showdown.Converter({
       tables: true,
       strikethrough: true,
@@ -49,6 +50,7 @@ export class WriterComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.myInput.nativeElement.focus();
+    this.ref.detectChanges();
   }
 
   changeContent() {

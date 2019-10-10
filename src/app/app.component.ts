@@ -1,5 +1,5 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {environment} from "../environments/environment";
+import {Component, OnInit} from '@angular/core';
+import {environment} from '../environments/environment';
 import {IBzzListEntries, IBzzListEntry, SwarmService} from './swarm.service';
 import {EventsService} from './events.service';
 import {FeedsService} from './feeds.service';
@@ -73,8 +73,7 @@ export class AppComponent implements OnInit {
             this.creating = true;
             const feedhash = await this.feedsService.createFeed(this.topic, this.user, environment.rootHash);
             console.log('New feed created!', feedhash.toString());
-            const feedCreated = await this.feedsService.listFeed(this.topic, this.user);
-            this.rootHash = feedCreated;
+            this.rootHash = await this.feedsService.listFeed(this.topic, this.user);
             this.creating = false;
             this.listEntries();
         }
