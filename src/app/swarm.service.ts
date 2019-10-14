@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {environment} from '../environments/environment';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpEvent, HttpRequest} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -39,10 +40,22 @@ export class SwarmService {
 
     addBinaryContent(rootHash: string, filePath: string, value: Blob): Promise<string> {
         const formData = new FormData();
-        const blob = new Blob([value], { type: "image/png"});
+        const blob = new Blob([value], {type: 'image/png'});
         formData.append(filePath, blob, filePath);
         const url = this.proxy + '/bzz:/' + rootHash;
         return this.http.post(url, formData, {responseType: 'text'}).toPromise();
+    }
+
+    observeAddBinaryContent(rootHash: string, filePath: string, value: Blob): Observable<HttpEvent<string>> {
+        const formData = new FormData();
+        const blob = new Blob([value], {type: 'image/png'});
+        formData.append(filePath, blob, filePath);
+        const url = this.proxy + '/bzz:/' + rootHash;
+        const req = new HttpRequest('POST', url, formData, {
+            responseType: 'text',
+            reportProgress: true
+        });
+        return this.http.request(req);
     }
 }
 

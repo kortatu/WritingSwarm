@@ -6,6 +6,7 @@ import {FeedsService} from './feeds.service';
 import {hexValue} from '@erebos/hex';
 import {MatDialog} from '@angular/material';
 import {NewfileComponent, NewfileData} from './newfile/newfile.component';
+import {FileUploadModel, UploadProgressComponent} from './upload-progress/upload-progress.component';
 
 const PROPERTY_PREFIX = 'SwarmWriter';
 const PROPERTY_SEPARATOR = '.';
@@ -36,7 +37,7 @@ export class AppComponent implements OnInit {
       private swarmService: SwarmService,
       private eventsService: EventsService,
       private feedsService: FeedsService,
-      private newFileDialog: MatDialog) {
+      private matDialog: MatDialog) {
     }
 
     static property(key): string {
@@ -117,31 +118,26 @@ export class AppComponent implements OnInit {
     }
 
     async openNewDialog(): Promise<void> {
-        const dialogRef = this.newFileDialog.open(NewfileComponent, {
+        const dialogRef = this.matDialog.open(NewfileComponent, {
             width: '450px',
             data: {name: '', type: 'md'} as NewfileData,
         });
-        dialogRef.afterClosed().subscribe((result: NewfileData) => {
-            console.log('The dialog was closed');
-            if (result !== undefined) {
-                let fileName = result.name;
-                if (result.type === 'md') {
-                    if (!result.name.endsWith(".md")) {
-                        fileName = result.name + ".md";
-                    }
-                    this.addNewFile(fileName, "# " + result.name);
-                } else if (result.type === 'image') {
-                    console.log("Adding binary content", result.name, result.blob);
-                    this.uploadNewFile(fileName, result.blob);
+        const result: NewfileData = await dialogRef.afterClosed().toPromise();
+        if (result !== undefined) {
+            let fileName = result.name;
+            if (result.type === 'md') {
+                if (!result.name.endsWith(".md")) {
+                    fileName = result.name + ".md";
                 }
-            } else {
-                console.log("Cancel add file");
+                this.addNewEmptyFile(fileName, "# " + result.name);
+            } else if (result.type === 'image') {
+                this.uploadNewFile(fileName, result.blob);
             }
-        });
+        }
         return;
     }
 
-    async addNewFile(fileName: string, content: string): Promise<void> {
+    async addNewEmptyFile(fileName: string, content: string): Promise<void> {
         const newRoot = await this.swarmService.saveFileContent(this.rootHash, fileName, content);
         localStorage.setItem('rootHash', newRoot);
         await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
@@ -153,7 +149,25 @@ export class AppComponent implements OnInit {
     }
 
     async uploadNewFile(fileName: string, content: Blob): Promise<void> {
-        const newRoot = await this.swarmService.addBinaryContent(this.rootHash, fileName, content);
+        const f = () => {
+            return this.swarmService.observeAddBinaryContent(this.rootHash, fileName, content);
+        };
+        const fileUploadProgress = new FileUploadModel<string>(fileName, f);
+        await this.openProgressDialog(fileUploadProgress);
+    }
+
+    private async openProgressDialog(fileUploadProgress: FileUploadModel<string>): Promise<void> {
+        const dialogRef = this.matDialog.open(UploadProgressComponent, {
+            width: '450px',
+            data: fileUploadProgress
+        });
+        const fileUploadResult = await dialogRef.afterClosed().toPromise() as FileUploadModel<string>;
+        if (!fileUploadResult.failed) {
+            await this.finishedBinaryUpload(fileUploadResult.result, fileUploadResult.fileName);
+        }
+    }
+
+    private async finishedBinaryUpload(newRoot: string, fileName: string) {
         localStorage.setItem('rootHash', newRoot);
         await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
         this.rootHash = newRoot;

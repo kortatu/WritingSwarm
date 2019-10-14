@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>Upload progress</h1>
+<mat-progress-bar [value]="file.progress"  [color]="file.color"></mat-progress-bar>
+<span id="file-label">{{file.fileName}}
+<a title="Cancel" (click)="cancelFile(file)" *ngIf="file.inProgress">
+    <mat-icon>cancel</mat-icon></a>
+</span>
+<mat-error *ngIf="file.failed">{{file.error}}</mat-error>
+
+<div mat-dialog-actions style="display: flex; justify-content: space-between">
+    <button mat-button [mat-dialog-close]="file" cdkFocusInitial *ngIf="!file.inProgress">Ok</button>
+</div>
