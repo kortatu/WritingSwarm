@@ -6,14 +6,14 @@ import { WriterComponent } from './text/writer/writer.component';
 import {FormsModule} from '@angular/forms';
 import { LoginComponent } from './login/login.component';
 import { NewfileComponent } from './newfile/newfile.component';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { NoopAnimationsModule, BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MatButtonModule,
   MatCardModule, MatDialogModule,
   MatDividerModule,
   MatFormFieldModule,
   MatGridListModule, MatIconModule, MatInputModule,
-  MatSidenavModule,
+  MatSidenavModule, MatTabsModule,
   MatToolbarModule, MatTooltipModule
 } from '@angular/material';
 
@@ -28,7 +28,7 @@ import {
     BrowserModule,
     HttpClientModule,
     FormsModule,
-    NoopAnimationsModule,
+    BrowserAnimationsModule,
     MatToolbarModule,
     MatCardModule,
     MatSidenavModule,
@@ -40,6 +40,7 @@ import {
     MatTooltipModule,
     MatDialogModule,
     MatButtonModule,
+    MatTabsModule,
   ],
   entryComponents: [
       NewfileComponent

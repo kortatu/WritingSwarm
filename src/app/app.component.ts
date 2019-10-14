@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
     public creating: boolean;
     public editProject: boolean;
     public messagesEnabled = false;
+    public contentType = "text/markdown";
 
     constructor(
       private swarmService: SwarmService,
@@ -87,7 +88,17 @@ export class AppComponent implements OnInit {
         });
     }
 
-    async loadPathContent(path: string): Promise<void> {
+    async loadEntry(entry: IBzzListEntry): Promise<void> {
+        this.contentType = entry.contentType;
+        if (entry.contentType.startsWith('text/')) {
+            return this.loadTextContent(entry.path);
+        } else {
+            this.currentPath = entry.path;
+            this.content = environment.swarmProxy + "/bzz-raw:/" + entry.hash;
+        }
+    }
+
+    async loadTextContent(path: string): Promise<void> {
       const content: string = await this.swarmService.getStringContent(this.rootHash + "/" + path);
       this.currentPath = path;
       this.content = content;
@@ -101,24 +112,31 @@ export class AppComponent implements OnInit {
         console.log("Saved new feed hash");
         this.rootHash = newRoot;
         await this.listEntries();
-        this.loadPathContent(this.currentPath);
+        this.loadTextContent(this.currentPath);
         this.content = content;
     }
 
     async openNewDialog(): Promise<void> {
         const dialogRef = this.newFileDialog.open(NewfileComponent, {
-            width: '250px',
-            data: {fileName: '', type: 'md'} ,
+            width: '450px',
+            data: {name: '', type: 'md'} as NewfileData,
         });
         dialogRef.afterClosed().subscribe((result: NewfileData) => {
             console.log('The dialog was closed');
-            let fileName = result.name;
-            if (result.type === 'md') {
-                if (!result.name.endsWith(".md")) {
-                    fileName = result.name + ".md";
+            if (result !== undefined) {
+                let fileName = result.name;
+                if (result.type === 'md') {
+                    if (!result.name.endsWith(".md")) {
+                        fileName = result.name + ".md";
+                    }
+                    this.addNewFile(fileName, "# " + result.name);
+                } else if (result.type === 'image') {
+                    console.log("Adding binary content", result.name, result.blob);
+                    this.uploadNewFile(fileName, result.blob);
                 }
+            } else {
+                console.log("Cancel add file");
             }
-            this.addNewFile(fileName, "# " + result.name);
         });
         return;
     }
@@ -130,8 +148,22 @@ export class AppComponent implements OnInit {
         this.rootHash = newRoot;
         await this.listEntries();
         this.currentPath = fileName;
-        this.loadPathContent(this.currentPath);
         this.content = content;
+        this.loadTextContent(this.currentPath);
+    }
+
+    async uploadNewFile(fileName: string, content: Blob): Promise<void> {
+        const newRoot = await this.swarmService.addBinaryContent(this.rootHash, fileName, content);
+        localStorage.setItem('rootHash', newRoot);
+        await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
+        this.rootHash = newRoot;
+        await this.listEntries();
+        const [entry] = this.entries.filter((e: IBzzListEntry) => e.path === fileName);
+        this.currentPath = fileName;
+        if (entry !== undefined) {
+            this.contentType = entry.contentType;
+            this.content = environment.swarmProxy + "/bzz-raw:/" + entry.hash;
+        }
     }
 
     private async listEntries(): Promise<void> {
@@ -139,7 +171,7 @@ export class AppComponent implements OnInit {
         console.log('Obtained entries', listEntries);
         this.entries = listEntries.entries;
         if (this.entries.length === 1) {
-            this.loadPathContent(this.entries[0].path);
+            this.loadTextContent(this.entries[0].path);
         }
     }
 

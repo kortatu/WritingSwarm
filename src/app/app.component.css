@@ -60,7 +60,8 @@ mat-drawer-content {
     background-color: white;
     display: flex;
     align-items: stretch;
-    justify-content: stretch
+    justify-content: stretch;
+    min-height: 100px;
 }
 
 mat-drawer-content .menu-toggler {
@@ -76,6 +77,7 @@ mat-drawer {
     background: #333;
     margin: 0;
     border-color: #333;
+    overflow: hidden;
 }
 
 mat-drawer nav a.itemSelected {
