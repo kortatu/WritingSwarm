@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {environment} from '../environments/environment';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpEvent, HttpRequest} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -18,6 +19,11 @@ export class SwarmService {
             this.proxy + '/bzz:/' + path, { responseType: 'text' }).toPromise();
     }
 
+    public getBinaryContent(path: string): Promise<ArrayBuffer> {
+        return this.http.get(
+            this.proxy + '/bzz:/' + path, { responseType: 'arraybuffer' }).toPromise();
+    }
+
     /**
      * curl -F "file2.txt={Modified file} ;type=text/plain" http://localhost:8500/bzz:/{hash}
      * @param rootHash has of the swarm content root
@@ -31,6 +37,26 @@ export class SwarmService {
         const url = this.proxy + '/bzz:/' + rootHash;
         return this.http.post(url, formData, {responseType: 'text'}).toPromise();
     }
+
+    addBinaryContent(rootHash: string, filePath: string, value: Blob): Promise<string> {
+        const formData = new FormData();
+        const blob = new Blob([value], {type: 'image/png'});
+        formData.append(filePath, blob, filePath);
+        const url = this.proxy + '/bzz:/' + rootHash;
+        return this.http.post(url, formData, {responseType: 'text'}).toPromise();
+    }
+
+    observeAddBinaryContent(rootHash: string, filePath: string, value: Blob): Observable<HttpEvent<string>> {
+        const formData = new FormData();
+        const blob = new Blob([value], {type: 'image/png'});
+        formData.append(filePath, blob, filePath);
+        const url = this.proxy + '/bzz:/' + rootHash;
+        const req = new HttpRequest('POST', url, formData, {
+            responseType: 'text',
+            reportProgress: true
+        });
+        return this.http.request(req);
+    }
 }
 
 export interface IBzzListEntries {
@@ -40,4 +66,7 @@ export interface IBzzListEntries {
 export interface IBzzListEntry {
     path: string;
     hash: string;
+    contentType: string;
+    mod_time: Date;
+    size: number;
 }

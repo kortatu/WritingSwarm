@@ -1,9 +1,28 @@
-<h1 mat-dialog-title>Add new file</h1>
+<!--<h1 mat-dialog-title>Add new file</h1>-->
 <div mat-dialog-content>
-    <p>Name</p>
-    <mat-form-field>
-        <input matInput [(ngModel)]="data.name">
-    </mat-form-field>
+    <mat-tab-group (selectedTabChange)="changeTab($event)">
+        <mat-tab label="Add empty" id="mat-tab-empty">
+            <p><label for="file-name-new">Name</label></p>
+            <mat-form-field>
+                <input matInput id="file-name-new" name="file-name" [(ngModel)]="data.name">
+            </mat-form-field>
+        </mat-tab>
+        <mat-tab label="Upload" id="mat-tab-upload">
+            <p><label for="file-name-upload">Name</label></p>
+            <mat-form-field>
+                <input matInput id="file-name-upload" name="file-name" [(ngModel)]="data.name">
+            </mat-form-field>
+            <button mat-button (click)="onSelectFileClick()"><mat-icon>file_upload</mat-icon>Select</button>
+            <p *ngIf="data.blob" style="display: flex; justify-content: space-between; align-items: center;
+                font-size: 0.9em; font-weight: lighter;">
+                <span style="display: flex; align-items: center"><mat-icon>{{ typeIcon }}</mat-icon> {{ data.blob.name }}</span>
+                <span><strong>Size:</strong> {{ (data.blob.size / 1024).toFixed(2)}} Kb</span>
+                <button mat-button (click)="data.blob = null; data.name = null" class="action"><mat-icon >clear</mat-icon></button>
+            </p>
+            <input id="fileUpload" name="file-field" (change)="uploadFile($event)" type="file"
+                   accept=".md,.png,.jpg,.jpeg,.gif" style="display: none">
+        </mat-tab>
+    </mat-tab-group>
 </div>
 <div mat-dialog-actions style="display: flex; justify-content: space-between">
     <button mat-button (click)="onNoClick()">Dismiss</button>

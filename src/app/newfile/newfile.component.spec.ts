@@ -1,7 +1,15 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {NewfileComponent, NewfileData} from './newfile.component';
-import {MAT_DIALOG_DATA, MatButtonModule, MatDialogModule, MatDialogRef, MatFormFieldModule, MatInputModule} from '@angular/material';
+import {
+  MAT_DIALOG_DATA,
+  MatButtonModule,
+  MatDialogModule,
+  MatDialogRef,
+  MatFormFieldModule, MatIconModule,
+  MatInputModule,
+  MatTabsModule
+} from '@angular/material';
 import {FormsModule} from '@angular/forms';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {By} from '@angular/platform-browser';
@@ -26,7 +34,8 @@ describe('NewfileComponent', () => {
     TestBed.configureTestingModule({
       declarations: [NewfileComponent],
       imports: [MatFormFieldModule, MatInputModule, MatDialogModule,
-        FormsModule, NoopAnimationsModule, MatButtonModule],
+        FormsModule, NoopAnimationsModule, MatButtonModule, MatTabsModule,
+        MatIconModule],
       providers: [
         {
           provide: MatDialogRef, useValue: matDialogRefJasmine
@@ -78,7 +87,7 @@ describe('NewfileComponent', () => {
   });
 
   it('should change data name when user input', async () => {
-    const inputDebugElement = debugElement.query(By.css('input'));
+    const inputDebugElement = debugElement.query(By.css('#file-name-new'));
     const inputElement: HTMLInputElement = inputDebugElement.nativeElement;
     inputElement.value = 'NewestName';
     inputElement.dispatchEvent(newEvent('input'));
@@ -86,6 +95,13 @@ describe('NewfileComponent', () => {
     // User input changes model name
     expect(component.data.name).toBe('NewestName');
   });
+
+  it('should change data type name when user selects a file to upload', async () => {
+    const file: File = new File([], "aFile.png", {type: "image/png"});
+    component.addfile(file);
+    expect(component.data.type).toBe('image');
+  });
+
 });
 
 function and<T>(p1, p2: Predicate<T>): Predicate<T> {

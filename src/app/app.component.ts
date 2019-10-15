@@ -6,6 +6,7 @@ import {FeedsService} from './feeds.service';
 import {hexValue} from '@erebos/hex';
 import {MatDialog} from '@angular/material';
 import {NewfileComponent, NewfileData} from './newfile/newfile.component';
+import {FileUploadModel, UploadProgressComponent} from './upload-progress/upload-progress.component';
 
 const PROPERTY_PREFIX = 'SwarmWriter';
 const PROPERTY_SEPARATOR = '.';
@@ -30,12 +31,13 @@ export class AppComponent implements OnInit {
     public creating: boolean;
     public editProject: boolean;
     public messagesEnabled = false;
+    public contentType = "text/markdown";
 
     constructor(
       private swarmService: SwarmService,
       private eventsService: EventsService,
       private feedsService: FeedsService,
-      private newFileDialog: MatDialog) {
+      private matDialog: MatDialog) {
     }
 
     static property(key): string {
@@ -87,7 +89,17 @@ export class AppComponent implements OnInit {
         });
     }
 
-    async loadPathContent(path: string): Promise<void> {
+    async loadEntry(entry: IBzzListEntry): Promise<void> {
+        this.contentType = entry.contentType;
+        if (entry.contentType.startsWith('text/')) {
+            return this.loadTextContent(entry.path);
+        } else {
+            this.currentPath = entry.path;
+            this.content = environment.swarmProxy + "/bzz-raw:/" + entry.hash;
+        }
+    }
+
+    async loadTextContent(path: string): Promise<void> {
       const content: string = await this.swarmService.getStringContent(this.rootHash + "/" + path);
       this.currentPath = path;
       this.content = content;
@@ -101,37 +113,71 @@ export class AppComponent implements OnInit {
         console.log("Saved new feed hash");
         this.rootHash = newRoot;
         await this.listEntries();
-        this.loadPathContent(this.currentPath);
+        this.loadTextContent(this.currentPath);
         this.content = content;
     }
 
     async openNewDialog(): Promise<void> {
-        const dialogRef = this.newFileDialog.open(NewfileComponent, {
-            width: '250px',
-            data: {fileName: '', type: 'md'} ,
+        const dialogRef = this.matDialog.open(NewfileComponent, {
+            width: '450px',
+            data: {name: '', type: 'md'} as NewfileData,
         });
-        dialogRef.afterClosed().subscribe((result: NewfileData) => {
-            console.log('The dialog was closed');
+        const result: NewfileData = await dialogRef.afterClosed().toPromise();
+        if (result !== undefined) {
             let fileName = result.name;
             if (result.type === 'md') {
                 if (!result.name.endsWith(".md")) {
                     fileName = result.name + ".md";
                 }
+                this.addNewEmptyFile(fileName, "# " + result.name);
+            } else if (result.type === 'image') {
+                this.uploadNewFile(fileName, result.blob);
             }
-            this.addNewFile(fileName, "# " + result.name);
-        });
+        }
         return;
     }
 
-    async addNewFile(fileName: string, content: string): Promise<void> {
+    async addNewEmptyFile(fileName: string, content: string): Promise<void> {
         const newRoot = await this.swarmService.saveFileContent(this.rootHash, fileName, content);
         localStorage.setItem('rootHash', newRoot);
         await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
         this.rootHash = newRoot;
         await this.listEntries();
         this.currentPath = fileName;
-        this.loadPathContent(this.currentPath);
         this.content = content;
+        this.loadTextContent(this.currentPath);
+    }
+
+    async uploadNewFile(fileName: string, content: Blob): Promise<void> {
+        const f = () => {
+            return this.swarmService.observeAddBinaryContent(this.rootHash, fileName, content);
+        };
+        const fileUploadProgress = new FileUploadModel<string>(fileName, f);
+        await this.openProgressDialog(fileUploadProgress);
+    }
+
+    private async openProgressDialog(fileUploadProgress: FileUploadModel<string>): Promise<void> {
+        const dialogRef = this.matDialog.open(UploadProgressComponent, {
+            width: '450px',
+            data: fileUploadProgress
+        });
+        const fileUploadResult = await dialogRef.afterClosed().toPromise() as FileUploadModel<string>;
+        if (!fileUploadResult.failed) {
+            await this.finishedBinaryUpload(fileUploadResult.result, fileUploadResult.fileName);
+        }
+    }
+
+    private async finishedBinaryUpload(newRoot: string, fileName: string) {
+        localStorage.setItem('rootHash', newRoot);
+        await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
+        this.rootHash = newRoot;
+        await this.listEntries();
+        const [entry] = this.entries.filter((e: IBzzListEntry) => e.path === fileName);
+        this.currentPath = fileName;
+        if (entry !== undefined) {
+            this.contentType = entry.contentType;
+            this.content = environment.swarmProxy + "/bzz-raw:/" + entry.hash;
+        }
     }
 
     private async listEntries(): Promise<void> {
@@ -139,7 +185,7 @@ export class AppComponent implements OnInit {
         console.log('Obtained entries', listEntries);
         this.entries = listEntries.entries;
         if (this.entries.length === 1) {
-            this.loadPathContent(this.entries[0].path);
+            this.loadTextContent(this.entries[0].path);
         }
     }
 

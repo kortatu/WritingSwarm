@@ -1,0 +1,15 @@
+#file-label {
+    display: inline-flex;
+    vertical-align: middle;
+    font-size: 12px;
+    line-height: 18px;
+}
+
+#file-label mat-icon {
+    font-size: 18px;
+    text-align: center;
+}
+
+#file-label a {
+    cursor: pointer;
+}

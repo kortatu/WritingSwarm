@@ -24,7 +24,7 @@
       <nav>
         <ul>
           <li *ngFor="let entry of entries" >
-            <a href="#" (click)="loadPathContent(entry.path)" [ngClass]="{'itemSelected': currentPath==entry.path}">{{ entry.path }}</a>
+            <a href="#" (click)="loadEntry(entry)" [ngClass]="{'itemSelected': currentPath==entry.path}">{{ entry.path }}</a>
           </li>
         </ul>
       </nav>
@@ -44,7 +44,8 @@
           <mat-icon *ngIf="!fileDrawer.opened">menu</mat-icon>
         </span>
       </div>
-      <app-writer id="content" *ngIf="content" [path]="currentPath" [content]="content" (contentChange)="saveContent($event)"></app-writer>
+      <app-writer id="content" *ngIf="content && contentType == 'text/plain'" [path]="currentPath" [content]="content" (contentChange)="saveContent($event)"></app-writer>
+      <img [src]="content" *ngIf="content && contentType.startsWith('image/')" [alt]="currentPath" style="max-width: 1000px;"/>
       <mat-card-content *ngIf="!content" class="no-file">
         Select a file from the list
       </mat-card-content>
