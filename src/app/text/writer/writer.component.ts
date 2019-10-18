@@ -11,7 +11,7 @@ import * as showdown from 'showdown';
 export class WriterComponent implements AfterViewInit {
 
   @Input()
-  path: string;
+  name: string;
   content: string;
   sanitized: SafeHtml;
   rightPanel: SafeHtml;

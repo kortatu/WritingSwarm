@@ -10,8 +10,12 @@ export class SwarmService {
     proxy = environment.swarmProxy;
     constructor(private http: HttpClient) { }
 
-    public listPath(path: string): Promise<IBzzListEntries> {
-        return this.http.get<IBzzListEntries>(this.proxy + "/bzz-list:/" + path).toPromise();
+    public async listPath(path: string): Promise<IBzzListEntries> {
+        return await this.http.get<IBzzListEntries>(this.proxy + "/bzz-list:/" + path).toPromise();
+    }
+
+    public observeListPath(path: string): Observable<IBzzListEntries> {
+        return this.http.get<IBzzListEntries>(this.proxy + "/bzz-list:/" + path);
     }
 
     public getStringContent(path: string): Promise<string> {
@@ -61,12 +65,13 @@ export class SwarmService {
 
 export interface IBzzListEntries {
     entries: IBzzListEntry[];
+    common_prefixes: string[];
 }
 
 export interface IBzzListEntry {
     path: string;
     hash: string;
     contentType: string;
-    mod_time: Date;
     size: number;
+    mod_time: Date;
 }

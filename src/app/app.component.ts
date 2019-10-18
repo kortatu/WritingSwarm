@@ -1,12 +1,14 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {environment} from '../environments/environment';
-import {IBzzListEntries, IBzzListEntry, SwarmService} from './swarm.service';
+import {SwarmService} from './swarm.service';
 import {EventsService} from './events.service';
 import {FeedsService} from './feeds.service';
 import {hexValue} from '@erebos/hex';
 import {MatDialog} from '@angular/material';
 import {NewfileComponent, NewfileData} from './newfile/newfile.component';
 import {FileUploadModel, UploadProgressComponent} from './upload-progress/upload-progress.component';
+import {ProjectFile} from './project-files';
+import {ProjectFilesViewerComponent} from './project-files-viewer/project-files-viewer.component';
 
 const PROPERTY_PREFIX = 'SwarmWriter';
 const PROPERTY_SEPARATOR = '.';
@@ -21,17 +23,21 @@ const TOPIC_KEY = 'topic';
 export class AppComponent implements OnInit {
     LOGO = require('./assets/Writing Swarm-logo-black_lifesavers_bee.png');
     title = "WritingSwarm";
-    public entries: IBzzListEntry[];
     public content: string;
-    public currentPath: string;
+    public currentFile: ProjectFile;
     public rootHash = environment.rootHash;
     public messageReceived: string;
     public topic: string = environment.defaultTopic;
     public user: hexValue;
     public creating: boolean;
+    public loadingContent: boolean;
     public editProject: boolean;
     public messagesEnabled = false;
+    // TODO: take from currentFile.contentType
     public contentType = "text/markdown";
+    public debug = !environment.production;
+    @ViewChild("projectFilesViewer", {static: false})
+    private projectFilesViewer: ProjectFilesViewerComponent;
 
     constructor(
       private swarmService: SwarmService,
@@ -69,7 +75,6 @@ export class AppComponent implements OnInit {
         if (feed != null) {
             console.log('Root hash in feed: ' + feed);
             this.rootHash = feed;
-            this.listEntries();
         } else {
             // creating feed
             this.creating = true;
@@ -77,7 +82,6 @@ export class AppComponent implements OnInit {
             console.log('New feed created!', feedhash.toString());
             this.rootHash = await this.feedsService.listFeed(this.topic, this.user);
             this.creating = false;
-            this.listEntries();
         }
     }
 
@@ -89,31 +93,35 @@ export class AppComponent implements OnInit {
         });
     }
 
-    async loadEntry(entry: IBzzListEntry): Promise<void> {
+    async loadEntry(entry: ProjectFile): Promise<void> {
+        this.currentFile = entry;
         this.contentType = entry.contentType;
         if (entry.contentType.startsWith('text/')) {
-            return this.loadTextContent(entry.path);
+            this.loadingContent = true;
+            this.content = await this.loadContent(entry);
+            this.loadingContent = false;
         } else {
-            this.currentPath = entry.path;
+            this.currentFile = entry;
             this.content = environment.swarmProxy + "/bzz-raw:/" + entry.hash;
         }
     }
 
-    async loadTextContent(path: string): Promise<void> {
-      const content: string = await this.swarmService.getStringContent(this.rootHash + "/" + path);
-      this.currentPath = path;
-      this.content = content;
+    async loadContent(projectFile: ProjectFile): Promise<string> {
+        if (projectFile.contentType.startsWith("text")) {
+          return  await this.swarmService.getStringContent(this.rootHash + "/" + projectFile.fullPath);
+        } else if  (projectFile.contentType.startsWith("image")) {
+          return projectFile.contentUrl();
+        }
+        return "";
     }
 
     async saveContent(content: string): Promise<void> {
-        const newRoot = await this.swarmService.saveFileContent(this.rootHash, this.currentPath, content);
+        const currentFullPath = this.currentFile.fullPath;
+        const newRoot = await this.swarmService.saveFileContent(this.rootHash, currentFullPath, content);
         localStorage.setItem('rootHash', newRoot);
         console.log("Saving new feed hash", newRoot);
         await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
-        console.log("Saved new feed hash");
         this.rootHash = newRoot;
-        await this.listEntries();
-        this.loadTextContent(this.currentPath);
         this.content = content;
     }
 
@@ -124,36 +132,69 @@ export class AppComponent implements OnInit {
         });
         const result: NewfileData = await dialogRef.afterClosed().toPromise();
         if (result !== undefined) {
-            let fileName = result.name;
+            let fullPath = result.name;
             if (result.type === 'md') {
                 if (!result.name.endsWith(".md")) {
-                    fileName = result.name + ".md";
+                    fullPath = result.name + ".md";
                 }
-                this.addNewEmptyFile(fileName, "# " + result.name);
+                this.addNewEmptyFile(fullPath, "# " + result.name);
             } else if (result.type === 'image') {
-                this.uploadNewFile(fileName, result.blob);
+                this.uploadNewFile(fullPath, result.blob);
             }
         }
         return;
     }
 
-    async addNewEmptyFile(fileName: string, content: string): Promise<void> {
-        const newRoot = await this.swarmService.saveFileContent(this.rootHash, fileName, content);
+    async addNewEmptyFile(fullPath: string, content: string): Promise<void> {
+        const newRoot = await this.swarmService.saveFileContent(this.rootHash, fullPath, content);
         localStorage.setItem('rootHash', newRoot);
         await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
         this.rootHash = newRoot;
-        await this.listEntries();
-        this.currentPath = fileName;
+        // TODO: define dirPath
+        const dirPath = "";
+        if (fullPath.indexOf("/") === -1 ) {
+            fullPath = dirPath + fullPath;
+        }
+        this.projectFilesViewer.selectPath(fullPath);
         this.content = content;
-        this.loadTextContent(this.currentPath);
     }
 
-    async uploadNewFile(fileName: string, content: Blob): Promise<void> {
+    async uploadNewFile(fullPath: string, content: Blob): Promise<void> {
         const f = () => {
-            return this.swarmService.observeAddBinaryContent(this.rootHash, fileName, content);
+            return this.swarmService.observeAddBinaryContent(this.rootHash, fullPath, content);
         };
-        const fileUploadProgress = new FileUploadModel<string>(fileName, f);
+        const fileUploadProgress = new FileUploadModel<string>(fullPath, f);
         await this.openProgressDialog(fileUploadProgress);
+    }
+
+    sendMessage() {
+        this.eventsService.sendMessage(this.content);
+    }
+
+    async setKey(key: string): Promise<void> {
+        localStorage.setItem(AppComponent.property(KEY_PROPERTY), key);
+        await this.initServices(key);
+    }
+
+    removeKey() {
+        this.user = null;
+        localStorage.removeItem(AppComponent.property(KEY_PROPERTY));
+        this.content = null;
+        this.rootHash = null;
+    }
+
+    async changeProject() {
+        localStorage.setItem(AppComponent.property(TOPIC_KEY), this.topic);
+        await this.initFeed();
+        this.editProject = false;
+    }
+
+    cancelEditProject() {
+        this.topic = localStorage.getItem(AppComponent.property(TOPIC_KEY));
+        if (this.topic === null) {
+            this.topic = environment.defaultTopic;
+        }
+        this.editProject = false;
     }
 
     private async openProgressDialog(fileUploadProgress: FileUploadModel<string>): Promise<void> {
@@ -167,67 +208,16 @@ export class AppComponent implements OnInit {
         }
     }
 
-    private async finishedBinaryUpload(newRoot: string, fileName: string) {
+    private async finishedBinaryUpload(newRoot: string, fullPath: string) {
         localStorage.setItem('rootHash', newRoot);
         await this.feedsService.updateFeedTopic(this.topic, this.user, newRoot);
         this.rootHash = newRoot;
-        await this.listEntries();
-        const [entry] = this.entries.filter((e: IBzzListEntry) => e.path === fileName);
-        this.currentPath = fileName;
-        if (entry !== undefined) {
-            this.contentType = entry.contentType;
-            this.content = environment.swarmProxy + "/bzz-raw:/" + entry.hash;
+        // await this.listEntries();
+        if (fullPath.indexOf("/") === -1) {
+            // TODO: define dirPath
+            const dirPath = "";
+            fullPath = dirPath + fullPath;
         }
-    }
-
-    private async listEntries(): Promise<void> {
-        const listEntries: IBzzListEntries = await this.swarmService.listPath(this.rootHash + '/');
-        console.log('Obtained entries', listEntries);
-        this.entries = listEntries.entries;
-        if (this.entries.length === 1) {
-            this.loadTextContent(this.entries[0].path);
-        }
-    }
-
-    sendMessage() {
-        this.eventsService.sendMessage(this.content);
-    }
-
-    private loadRootHashFromStorageOrDefault() {
-        const rootHashFromStorage: string = localStorage.getItem('rootHash');
-        if (rootHashFromStorage !== null) {
-            console.log('Root hash in storage: ' + rootHashFromStorage);
-            this.rootHash = rootHashFromStorage;
-        } else {
-            console.log('Root hash not in storage using default: ' + this.rootHash);
-        }
-    }
-
-    async setKey(key: string): Promise<void> {
-        localStorage.setItem(AppComponent.property(KEY_PROPERTY), key);
-        await this.initServices(key);
-    }
-
-    removeKey() {
-        this.user = null;
-        localStorage.removeItem(AppComponent.property(KEY_PROPERTY));
-        this.entries = null;
-        this.content = null;
-        this.rootHash = null;
-    }
-
-    async changeProject() {
-        console.log("Saving topic in localStorage", this.topic);
-        localStorage.setItem(AppComponent.property(TOPIC_KEY), this.topic);
-        await this.initFeed();
-        this.editProject = false;
-    }
-
-    cancelEditProject() {
-        this.topic = localStorage.getItem(AppComponent.property(TOPIC_KEY));
-        if (this.topic === null) {
-            this.topic = environment.defaultTopic;
-        }
-        this.editProject = false;
+        this.projectFilesViewer.selectPath(fullPath);
     }
 }
