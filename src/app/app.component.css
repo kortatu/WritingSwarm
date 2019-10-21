@@ -22,6 +22,7 @@
     flex-direction: column;
     background: linear-gradient(to right, #ffa500, #ffbb60);
     color: #000;
+    z-index: 100;
 }
 
 .app-main {
@@ -61,7 +62,7 @@ mat-drawer-content {
     display: flex;
     align-items: stretch;
     justify-content: stretch;
-    min-height: 100px;
+    min-height: 400px;
 }
 
 mat-drawer-content .menu-toggler {
@@ -80,16 +81,8 @@ mat-drawer {
     overflow: hidden;
 }
 
-mat-drawer nav a.itemSelected {
-    color: #ffa500;
-}
-
 mat-drawer mat-divider {
     border-top: solid 1px rgba(255, 255, 255, 0.1);
-}
-
-mat-drawer nav {
-    padding: 5px 0px 2px 5px;
 }
 
 mat-drawer nav a {
@@ -98,13 +91,17 @@ mat-drawer nav a {
     color: rgba(255,255,255,.54);
 }
 
+mat-drawer nav a.itemSelected {
+    color: #ffa500;
+}
+
 mat-drawer nav a:hover {
     color: #ffa500;
 }
 
 mat-drawer ul {
     list-style-type: none;
-    padding-inline-start: 5px;
+    padding-inline-start: 0;
     margin: 0 0 5px;
     overflow: hidden
 }

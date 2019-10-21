@@ -5,27 +5,29 @@ import {
   MatCardModule,
   MatDialogModule,
   MatDialogRef,
-  MatDividerModule,
+  MatDividerModule, MatExpansionModule,
   MatFormFieldModule,
   MatIconModule,
   MatInputModule,
   MatSidenavModule,
   MatToolbarModule,
-  MatTooltipModule
+  MatTooltipModule, MatTreeModule
 } from '@angular/material';
 import {WriterComponent} from './text/writer/writer.component';
 import {FormsModule} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {DomSanitizer} from '@angular/platform-browser';
 import {ChangeDetectorRef} from '@angular/core';
+import {ProjectFilesViewerComponent} from './project-files-viewer/project-files-viewer.component';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AppComponent, LoginComponent, WriterComponent],
+      declarations: [ AppComponent, LoginComponent, WriterComponent, ProjectFilesViewerComponent],
       imports: [MatCardModule, MatSidenavModule, MatIconModule, MatDividerModule,
         FormsModule, MatFormFieldModule, MatInputModule,
-        MatToolbarModule, MatTooltipModule, MatDialogModule],
+        MatToolbarModule, MatTooltipModule, MatDialogModule, MatExpansionModule,
+        MatTreeModule],
       providers: [
         {provide: HttpClient, useClass: MockHttpClient},
         {provide: MatDialogRef,
