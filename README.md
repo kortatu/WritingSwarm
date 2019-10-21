@@ -1,3 +1,4 @@
+![WritingSwarm](https://raw.githubusercontent.com/kortatu/WritingSwarm/master/src/app/assets/Writing%20Swarm-logo-black_lifesavers_bee.png)
 # WritingSwarm
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.1.3.
