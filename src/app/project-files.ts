@@ -1,7 +1,8 @@
 import {IBzzListEntries, IBzzListEntry, SwarmService} from './swarm.service';
 import {environment} from '../environments/environment';
-import {Observable, from} from 'rxjs';
+import {from, iif, merge, Observable, of} from 'rxjs';
 import {flatMap} from 'rxjs/operators';
+import {empty} from 'rxjs/internal/Observer';
 
 export class ProjectFiles {
     files: ProjectFile[];
@@ -17,15 +18,19 @@ export class ProjectFiles {
         );
     }
 
-    static async FromBzzListEntries(rootHash: string, entries: IBzzListEntries, swarmService: SwarmService): Promise<ProjectFiles> {
-        const projectFiles = new ProjectFiles();
+    static async FromBzzListEntries(
+        rootHash: string, entries: IBzzListEntries, swarmService: SwarmService, parent?: ProjectFile): Promise<ProjectFiles> {
+        const projectFiles = new ProjectFiles(swarmService);
         if (entries.entries) {
-            projectFiles.files = entries.entries.map(ProjectFile.FromBzzListEntry);
+            projectFiles.files = entries.entries.map(entry => ProjectFile.FromBzzListEntry(entry, parent));
         } else {
             projectFiles.files = [];
         }
-        await projectFiles.addSubdirectories(rootHash, entries.common_prefixes, swarmService);
+        await projectFiles.addSubdirectories(rootHash, entries.common_prefixes, parent);
         return projectFiles;
+    }
+
+    constructor(private swarmService: SwarmService) {
     }
 
     public findDirectChild(fullPath: string): ProjectFile {
@@ -36,45 +41,38 @@ export class ProjectFiles {
         return foundFile;
     }
 
-    public findDirectChildRecursive(fullPath: string): {file: ProjectFile, parents: ProjectFile[]} {
+    public findChildRecursive(fullPath: string): ProjectFile {
         if (!fullPath) {
             return undefined;
         }
         for (const projectFile of this.files) {
             if (projectFile.fullPath === fullPath) {
-                return {file: projectFile, parents: []};
+                return projectFile;
             } else if (projectFile.isDirectory() && fullPath.startsWith(projectFile.fullPath)) {
-                const findDirectChildRecursive = projectFile.children.findDirectChildRecursive(fullPath);
-                if (findDirectChildRecursive) {
-                    return {file: findDirectChildRecursive.file, parents: [projectFile].concat(findDirectChildRecursive.parents)};
-                }
-                return undefined;
+                return projectFile.children.findChildRecursive(fullPath);
             }
         }
         return undefined;
     }
 
-    private async addSubdirectories(rootHash: string, commonPrefixes: string[], swarmService: SwarmService): Promise<void> {
+    public subscribeToFilesRecursively(): Observable<ProjectFile> {
+        return from(this.files).pipe(
+            flatMap((pf: ProjectFile) => merge(of(pf), pf.childrenObservable()))
+        );
+    }
+
+    // iif<ProjectFile, ProjectFile>(() => pf.isDirectory(), pf.children.subscribeToFilesRecursively()))
+
+    private async addSubdirectories(rootHash: string, commonPrefixes: string[], parent: ProjectFile): Promise<void> {
         if (commonPrefixes) {
             const subs = await Promise.all(commonPrefixes.map(async (subName: string) => {
                 const projectFileSub = new ProjectFile('directory');
-                projectFileSub.fullPath = subName;
-                const pathElements = subName.split("/");
-                if (pathElements.length > 1) {
-                    projectFileSub.fileName = pathElements[pathElements.length - 2];
-                    pathElements.splice(pathElements.length - 2, 2);
-                } else {
-                    projectFileSub.fileName = pathElements[pathElements.length - 1];
-                    pathElements.splice(pathElements.length - 1);
-                }
-                projectFileSub.path = pathElements.join("/");
-                const childrenEntries = await swarmService.listPath(rootHash + "/" + subName);
-                projectFileSub.children = await ProjectFiles.FromBzzListEntries(rootHash, childrenEntries, swarmService);
-                return projectFileSub;
+                return await projectFileSub.buildSubDirectory(rootHash, subName, this.swarmService, parent);
             }));
             this.files = this.files.concat(subs);
         }
     }
+
 }
 
 type fileType = 'file' | 'directory';
@@ -89,12 +87,14 @@ export class ProjectFile {
     modTime: Date;
     contentType: string;
     children: ProjectFiles;
+    parent: ProjectFile;
     constructor(type: fileType) {
         this.type = type;
     }
 
-    static FromBzzListEntry(bzzListEntry: IBzzListEntry): ProjectFile {
+    static FromBzzListEntry(bzzListEntry: IBzzListEntry, parent?: ProjectFile): ProjectFile {
         const file = new ProjectFile('file');
+        file.parent = parent;
         file.hash = bzzListEntry.hash;
         file.fullPath =  bzzListEntry.path;
         const pathElements = bzzListEntry.path.split("/");
@@ -107,6 +107,33 @@ export class ProjectFile {
         return file;
     }
 
+    async buildSubDirectory(rootHash: string, subName: string, swarmService: SwarmService, parent: ProjectFile) {
+        this.parent = parent;
+        this.fullPath = subName;
+        const pathElements = subName.split('/');
+        if (pathElements.length > 1) {
+            this.fileName = pathElements[pathElements.length - 2];
+            pathElements.splice(pathElements.length - 2, 2);
+        } else {
+            this.fileName = pathElements[pathElements.length - 1];
+            pathElements.splice(pathElements.length - 1);
+        }
+        this.path = pathElements.join('/');
+        const childrenEntries = await swarmService.listPath(rootHash + '/' + subName);
+        this.children = await ProjectFiles.FromBzzListEntries(rootHash, childrenEntries, swarmService, this);
+        return this;
+    }
+
+    parents(): ProjectFile[] {
+        const parents = [];
+        let currentParent = this.parent;
+        while (currentParent !== undefined) {
+            parents.push(currentParent);
+            currentParent = currentParent.parent;
+        }
+        return parents;
+    }
+
     contentUrl(): string {
         // TODO: different urls depending on type/contentType
         return environment.swarmProxy + "/bzz-raw:/" + this.hash;
@@ -114,5 +141,9 @@ export class ProjectFile {
 
     isDirectory() {
         return this.type === 'directory';
+    }
+
+    childrenObservable(): Observable<ProjectFile> {
+        return this.isDirectory() ? this.children.subscribeToFilesRecursively() : of<ProjectFile>();
     }
 }

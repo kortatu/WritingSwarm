@@ -49,13 +49,11 @@ export class FeedsService {
         const feedHash: hexValue = await this.bzz.createFeedManifest(manifest);
         console.log('Create feed hash', feedHash);
         await this.bzz.setFeedContentHash(feedHash, content);
-        console.log('Update feed content hash');
         return feedHash;
     }
 
     public async updateFeed(feedHash: hexValue, content: string): Promise<void> {
         await this.bzz.setFeedContentHash(feedHash, content);
-        console.log('Update feed hash');
     }
 
     public async updateFeedTopic(topic: string, user: hexValue, content: string): Promise<void> {
@@ -65,7 +63,6 @@ export class FeedsService {
         };
         this.updatePending = true;
         await this.bzz.setFeedContentHash(feedParams, content);
-        console.log('Updated feed hash');
         this.checkCompletedChanges(feedParams, content);
     }
 
