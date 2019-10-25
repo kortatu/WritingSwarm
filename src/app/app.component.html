@@ -45,7 +45,7 @@
         </span>
       </div>
       <app-writer id="content" *ngIf="content && contentType.startsWith('text/')" [name]="currentFile.fileName" [content]="content" (contentChange)="saveContent($event)"></app-writer>
-      <img [src]="content" *ngIf="content && contentType.startsWith('image/')" [alt]="currentFile.fileName" style="max-width: 1000px;"/>
+      <img [src]="content" *ngIf="content && contentType.startsWith('image/')" [alt]="currentFile.fileName" style="max-width: 90%; margin-left: 10px;"/>
       <mat-card-content *ngIf="!content" class="no-file">
         Select a file from the list
       </mat-card-content>
