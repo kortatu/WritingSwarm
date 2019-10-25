@@ -22,6 +22,7 @@ export class WriterComponent implements AfterViewInit {
   set _content(val: string) {
     this.content = val;
     this.originalContent = val;
+    this.previewContent = this.content;
     this.modified = false;
   }
   originalContent: string;
@@ -44,7 +45,6 @@ export class WriterComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.myInput.nativeElement.focus();
-    this.previewContent = this.content;
     this.ref.detectChanges();
   }
 

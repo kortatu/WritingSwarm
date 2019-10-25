@@ -50,7 +50,7 @@
                   [rootHash]="rootHash"
                   (contentChange)="saveContent($event)"></app-writer>
       <div style="display: flex; align-items: center;" *ngIf="content && contentType.startsWith('image/')" >
-        <img [src]="content" [alt]="currentFile.fileName" style="max-width: 1000px;"/>
+        <img [src]="content" [alt]="currentFile.fileName" style="max-width: 90%; margin-left: 10px;"/>
       </div>
 
       <mat-card-content *ngIf="!content" class="no-file">
