@@ -58,6 +58,7 @@ export class WriterComponent implements AfterViewInit {
 
   switchOriginal() {
     this.showingPreview = !this.showingPreview;
+    this.changeContent();
     this.switchText = this.showingPreview ? 'Original' : 'Preview';
   }
 }
