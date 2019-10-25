@@ -12,6 +12,7 @@ import {
 import {FormsModule} from '@angular/forms';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {ChangeDetectorRef} from '@angular/core';
+import { PreviewComponent } from '../../preview/preview.component';
 
 describe('WriterComponent', () => {
   let component: WriterComponent;
@@ -19,7 +20,10 @@ describe('WriterComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [WriterComponent],
+      declarations: [
+        WriterComponent,
+        PreviewComponent,
+      ],
       imports: [
         FormsModule,
         MatCardModule,

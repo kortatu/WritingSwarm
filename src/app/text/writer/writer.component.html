@@ -1,6 +1,6 @@
 <mat-card class="main">
-    <mat-card-header style="align-items: baseline">
-        <em mat-card-sm-image class="fa fa-file-word-o"></em>
+    <mat-card-header class="mat_card_header">
+        <em class="fa fa-file-word-o"></em>
         <mat-card-title> {{ name }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
@@ -14,8 +14,8 @@
             </div>
             <div class="editor_column right">
                 <div class="editor_column_header">
-                    <span *ngIf="showingPreview">Preview <span *ngIf="modified">(Modified)</span> </span>
-                    <span *ngIf="!showingPreview">Original</span>
+                    <span *ngIf="showingPreview; else isOriginal">Preview <span *ngIf="modified">(Modified)</span> </span>
+                    <ng-template #isOriginal><span>Original</span></ng-template>
                     <span>
                         <a *ngIf="modified" (click)="switchOriginal()" class="action" matTooltip="Show {{switchText}}">
                             <mat-icon aria-label="View original content">search</mat-icon>
@@ -23,14 +23,12 @@
                         <a><mat-icon aria-label="Show result in pop-up" class="action" matTooltip="Show in pop_up">launch</mat-icon></a>
                     </span>
                 </div>
-                <div class="textzone" [class.modified]="modified && showingPreview" [innerHTML]="rightPanel"></div>
+                <app-preview [format]="'md'" [content]="previewContent" [modified]="modified && showingPreview"></app-preview>
             </div>
         </div>
         <mat-divider></mat-divider>
         <mat-card-actions>
             <button mat-button title="Save Content" *ngIf="modified" (click)="saveContent()">Save Content</button>
         </mat-card-actions>
-
     </mat-card-content>
-
 </mat-card>

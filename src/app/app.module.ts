@@ -25,6 +25,7 @@ import {
     MatTreeModule,
 } from '@angular/material';
 import { ProjectFilesViewerComponent } from './project-files-viewer/project-files-viewer.component';
+import { PreviewComponent } from './preview/preview.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { ProjectFilesViewerComponent } from './project-files-viewer/project-file
     LoginComponent,
     NewfileComponent,
     UploadProgressComponent,
-    ProjectFilesViewerComponent
+    ProjectFilesViewerComponent,
+    PreviewComponent
   ],
     imports: [
         BrowserModule,
