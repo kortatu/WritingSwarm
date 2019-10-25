@@ -3,6 +3,10 @@ import { SwarmService } from './swarm.service';
 import {FeedsService} from './feeds.service';
 import {HttpClient} from '@angular/common/http';
 
+class MockHttpClient {
+  constructor() {}
+}
+
 describe('SwarmService', () => {
   beforeEach(() => TestBed.configureTestingModule({
     declarations: [],
@@ -14,7 +18,3 @@ describe('SwarmService', () => {
     expect(service).toBeTruthy();
   });
 });
-
-class MockHttpClient {
-  constructor() {}
-}

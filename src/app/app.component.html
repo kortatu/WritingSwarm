@@ -23,7 +23,7 @@
     <mat-drawer #fileDrawer mode="side">
       <nav>
         <ul>
-          <app-project-files-viewer #projectFilesViewer [rootHash]="this.rootHash"
+          <app-project-files-viewer #projectFilesViewer [rootHash]="rootHash"
                                     (loaded)="fileDrawer.open();"
                                     (fileSelected)="loadEntry($event)"></app-project-files-viewer>
         </ul>
@@ -44,8 +44,15 @@
           <mat-icon *ngIf="!fileDrawer.opened">menu</mat-icon>
         </span>
       </div>
-      <app-writer id="content" *ngIf="content && contentType.startsWith('text/')" [name]="currentFile.fileName" [content]="content" (contentChange)="saveContent($event)"></app-writer>
-      <img [src]="content" *ngIf="content && contentType.startsWith('image/')" [alt]="currentFile.fileName" style="max-width: 1000px;"/>
+      <app-writer id="content" *ngIf="content && contentType.startsWith('text/')"
+                  [name]="currentFile.fileName"
+                  [content]="content"
+                  [rootHash]="rootHash"
+                  (contentChange)="saveContent($event)"></app-writer>
+      <div style="display: flex; align-items: center;" *ngIf="content && contentType.startsWith('image/')" >
+        <img [src]="content" [alt]="currentFile.fileName" style="max-width: 1000px;"/>
+      </div>
+
       <mat-card-content *ngIf="!content" class="no-file">
         Select a file from the list
       </mat-card-content>

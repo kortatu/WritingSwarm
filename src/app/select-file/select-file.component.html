@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>Select {{data.contentType}} file</h1>
+<div mat-dialog-content>
+    <nav>
+        <ul>
+            <app-project-files-viewer [rootHash]="data.rootHash"
+                                      [contentType]="data.contentType"
+                              (fileSelected)="loadEntry($event)"></app-project-files-viewer>
+        </ul>
+    </nav>
+</div>
+<div mat-dialog-actions style="display: flex; justify-content: space-between">
+    <button mat-button (click)="onNoClick()">Dismiss</button>
+<!--    <button mat-button [mat-dialog-close]="selected" cdkFocusInitial>Ok</button>-->
+</div>

@@ -7,7 +7,7 @@ import {Observable} from 'rxjs';
     providedIn: 'root'
 })
 export class SwarmService {
-    proxy = environment.swarmProxy;
+    proxy = environment.production ? window.location.origin : environment.swarmProxy;
     constructor(private http: HttpClient) { }
 
     public async listPath(path: string): Promise<IBzzListEntries> {

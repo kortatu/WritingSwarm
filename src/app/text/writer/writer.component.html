@@ -7,6 +7,14 @@
         <div class="editor_grid">
             <div class="editor_column editing">
                 <div class="editor_column_header">Editing</div>
+                <div class="button-toolbar">
+                    <button mat-raised-button aria-label="Bold" onClick="alert('Soon...')">
+                        <mat-icon>format_bold</mat-icon>
+                    </button>
+                    <button mat-raised-button aria-label="Insert image" (click)="insertImage()">
+                        <mat-icon>image</mat-icon>
+                    </button>
+                </div>
                 <mat-form-field>
                     <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="2" cdkAutosizeMaxRows="25" #autosize="cdkTextareaAutosize"
                               class="editzone" #myInput (keyup)="changeContent()" [(ngModel)]="content"></textarea>

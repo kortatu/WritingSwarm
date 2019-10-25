@@ -1,0 +1,30 @@
+.mat-dialog-content nav {
+    background-color: #333333;
+}
+
+.mat-dialog-content app-project-files-viewer nav a {
+    display: block;
+    text-decoration: none;
+    color: rgba(255,255,255,.54);
+}
+
+.mat-dialog-content app-project-files-viewer nav a.itemSelected {
+    color: #ffa500;
+}
+
+.mat-dialog-content app-project-files-viewer nav a:hover {
+    color: #ffa500;
+}
+
+.mat-dialog-content ul {
+    list-style-type: none;
+    padding-inline-start: 0;
+    margin: 0 0 5px;
+    overflow: hidden
+}
+
+.mat-dialog-content app-project-files-viewer li {
+    margin: 0;
+    padding: 5px 15px 5px 20px;
+
+}

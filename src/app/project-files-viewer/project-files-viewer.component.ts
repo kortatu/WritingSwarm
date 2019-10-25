@@ -24,6 +24,9 @@ export class ProjectFilesViewerComponent implements OnInit {
         }
     }
 
+    @Input()
+    contentType: string;
+
     @Output()
     fileSelected: EventEmitter<ProjectFile> = new EventEmitter<ProjectFile>();
     @Output()
@@ -31,9 +34,9 @@ export class ProjectFilesViewerComponent implements OnInit {
 
     public dataSource: MatTreeNestedDataSource<ProjectFile>;
     public treeControl: NestedTreeControl<ProjectFile>;
+    public currentFile: ProjectFile;
 
     private rootHash: string;
-    private currentFile: ProjectFile;
     private projectFiles: ProjectFiles;
     private fileMap: Map<string, Subject<ProjectFile>> = new Map<string, Subject<ProjectFile>>();
 
@@ -61,11 +64,29 @@ export class ProjectFilesViewerComponent implements OnInit {
         if (regularFiles.length === 1) {
             this.selectNode(regularFiles[0]);
         }
-        this.dataSource = this.directoryTreeDataSource(projectFiles.files);
+
+        let filter: (pf: ProjectFile) => boolean = (pf => true);
+        const filterByContentType = pf => {
+            // console.log("Filtering", pf.fileName, pf.contentType, this.contentType);
+            return pf.isDirectory() ||
+                pf.contentType && pf.contentType.startsWith(this.contentType);
+        };
+
+        if (this.contentType) {
+            filter = filterByContentType;
+        }
+
+        this.dataSource = this.directoryTreeDataSource(projectFiles.files
+            .filter(filter));
         this.loaded.emit(true);
         this.treeControl = new NestedTreeControl<ProjectFile>(node => {
             if (node.isDirectory()) {
-                return node.children.files;
+                const filtered = node.children.files.filter(filter);
+                if (this.contentType && filtered.length === 0) {
+                    return null;
+                } else {
+                    return filtered;
+                }
             } else {
                 return null;
             }

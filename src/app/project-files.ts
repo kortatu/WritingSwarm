@@ -2,7 +2,6 @@ import {IBzzListEntries, IBzzListEntry, SwarmService} from './swarm.service';
 import {environment} from '../environments/environment';
 import {from, iif, merge, Observable, of} from 'rxjs';
 import {flatMap} from 'rxjs/operators';
-import {empty} from 'rxjs/internal/Observer';
 
 export class ProjectFiles {
     files: ProjectFile[];

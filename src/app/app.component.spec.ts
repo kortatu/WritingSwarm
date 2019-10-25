@@ -20,6 +20,10 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {ChangeDetectorRef} from '@angular/core';
 import {ProjectFilesViewerComponent} from './project-files-viewer/project-files-viewer.component';
 
+class MockHttpClient {
+  constructor() {
+  }
+}
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
@@ -73,7 +77,3 @@ describe('AppComponent', () => {
   });
 });
 
-class MockHttpClient {
-  constructor() {
-  }
-}
