@@ -1,7 +1,5 @@
 import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {CdkTextareaAutosize} from '@angular/cdk/text-field';
-import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
-import * as showdown from 'showdown';
 
 @Component({
   selector: 'app-writer',
@@ -13,20 +11,14 @@ export class WriterComponent implements AfterViewInit {
   @Input()
   name: string;
   content: string;
-  sanitized: SafeHtml;
-  rightPanel: SafeHtml;
   showingPreview = true;
   @Input('content')
   set _content(val: string) {
     this.content = val;
     this.originalContent = val;
-    this.sanitized = this.sanitizer.bypassSecurityTrustHtml(this.converter.makeHtml(val));
-    this.originalSanitized = this.sanitized;
     this.modified = false;
-    this.adjustRightPanel();
   }
   originalContent: string;
-  originalSanitized: SafeHtml;
   @Output()
   contentChange: EventEmitter<string> = new EventEmitter<string>();
 
@@ -37,15 +29,10 @@ export class WriterComponent implements AfterViewInit {
   @ViewChild('autosize', { static: false })
   txtAreaAutosize: CdkTextareaAutosize;
 
-  converter: showdown.Converter;
-  switchText: string;
+  switchText = 'Original';
 
-  constructor(private sanitizer: DomSanitizer,
-              private ref: ChangeDetectorRef) {
-    this.converter = new showdown.Converter({
-      tables: true,
-      strikethrough: true,
-    });
+  constructor(private ref: ChangeDetectorRef) {
+    // nothing to see here
   }
 
   ngAfterViewInit(): void {
@@ -55,8 +42,6 @@ export class WriterComponent implements AfterViewInit {
 
   changeContent() {
     this.modified = this.originalContent !== this.content;
-    this.sanitized = this.sanitizer.bypassSecurityTrustHtml(this.converter.makeHtml(this.content));
-    this.adjustRightPanel();
   }
 
   async saveContent(): Promise<void> {
@@ -70,11 +55,6 @@ export class WriterComponent implements AfterViewInit {
 
   switchOriginal() {
     this.showingPreview = !this.showingPreview;
-    this.adjustRightPanel();
-  }
-
-  private adjustRightPanel() {
     this.switchText = this.showingPreview ? 'Original' : 'Preview';
-    this.rightPanel = this.showingPreview ? this.sanitized : this.originalSanitized;
   }
 }
