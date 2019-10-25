@@ -1,11 +1,13 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 import {ProjectFile} from '../project-files';
+import {environment} from '../../environments/environment';
 
 export class FileData {
   hash: string;
   name: string;
   size: string;
+  url: string;
 }
 export class SelectFileData {
   contentType: string;
@@ -37,7 +39,8 @@ export class SelectFileComponent implements OnInit {
       name: file.fileName,
       hash: file.hash,
       size: ' =600x*',
+      url: environment.swarmProxy + '/bzz-raw:/' + file.hash,
     };
-    this.dialogRef.close(this.selected);
+    // this.dialogRef.close(this.selected);
   }
 }

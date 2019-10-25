@@ -1,3 +1,12 @@
+.mat-dialog-content{
+    display: flex;
+}
+
+.mat-dialog-actions {
+    display: flex;
+    justify-content: space-between
+}
+
 .mat-dialog-content nav {
     background-color: #333333;
 }
@@ -26,5 +35,20 @@
 .mat-dialog-content app-project-files-viewer li {
     margin: 0;
     padding: 5px 15px 5px 20px;
+}
 
+.preview {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.preview img {
+    max-height: 400px;
+    max-width: 90%;
+}
+
+.preview mat-icon {
+    font-size: 84px;
+    opacity: 0.15
 }

@@ -72,7 +72,7 @@ export class WriterComponent implements AfterViewInit {
     const textArea = this.myInput.nativeElement;
     const cursorPos = textArea.selectionStart;
     const dialogRef = this.matDialog.open(SelectFileComponent, {
-      width: '500px',
+      width: '600px',
       data: {
         contentType: 'image',
         rootHash: this.rootHash,
@@ -83,7 +83,6 @@ export class WriterComponent implements AfterViewInit {
         + this.getImageLinkText(result)
         + textArea.value.substring(cursorPos);
     this.changeContent();
-    // this.ref.detectChanges();
   }
 
   private getImageLinkText(result: FileData) {

@@ -3,6 +3,9 @@ import {IBzzListEntry} from './swarm.service';
 import {from, iif, merge, Observable, of} from 'rxjs';
 import {concatMap, expand, mergeMap} from 'rxjs/operators';
 
+class MockSwarmService {
+
+}
 describe('ProjectFiles', () => {
     it('should be created from bzz list entry', () => {
         const hash = 'a0';
@@ -36,11 +39,12 @@ describe('ProjectFiles', () => {
             path: "fileSub2.txt",
             hash: "1",
         }];
+        const mockSwarmService = jasmine.createSpyObj('SwarmService', ['listPath', 'observeListPath']);
         const toProjectFile = entry => ProjectFile.FromBzzListEntry(entry as IBzzListEntry);
         const mainFiles = entryListMain.map( toProjectFile);
-        const projectFiles = new ProjectFiles();
+        const projectFiles = new ProjectFiles(mockSwarmService);
         projectFiles.files = mainFiles;
-        const subProjectFiles = new ProjectFiles();
+        const subProjectFiles = new ProjectFiles(mockSwarmService);
         subProjectFiles.files = entryListSub.map(toProjectFile);
         const subDirectory = new ProjectFile('directory');
         subDirectory.fullPath = 'sub';

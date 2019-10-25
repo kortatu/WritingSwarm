@@ -54,6 +54,22 @@ export class ProjectFiles {
         return undefined;
     }
 
+    public findChildRecursiveContentType(contentType: string): ProjectFile {
+        return this.findChildRecursiveMatches(pf => pf.contentType && pf.contentType.startsWith(contentType));
+    }
+
+
+    public findChildRecursiveMatches(matches: (ProjectFile) => boolean): ProjectFile {
+        for (const projectFile of this.files) {
+            if (matches(projectFile)) {
+                return projectFile;
+            } else if (projectFile.isDirectory()) {
+                return projectFile.children.findChildRecursiveMatches(matches);
+            }
+        }
+        return undefined;
+    }
+
     public subscribeToFilesRecursively(): Observable<ProjectFile> {
         return from(this.files).pipe(
             flatMap((pf: ProjectFile) => merge(of(pf), pf.childrenObservable()))

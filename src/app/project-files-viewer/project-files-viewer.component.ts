@@ -67,9 +67,11 @@ export class ProjectFilesViewerComponent implements OnInit {
 
         let filter: (pf: ProjectFile) => boolean = (pf => true);
         const filterByContentType = pf => {
-            // console.log("Filtering", pf.fileName, pf.contentType, this.contentType);
-            return pf.isDirectory() ||
-                pf.contentType && pf.contentType.startsWith(this.contentType);
+            if (pf.isDirectory()) {
+                return pf.children.findChildRecursiveContentType(this.contentType) !== undefined;
+            } else {
+                return pf.contentType && pf.contentType.startsWith(this.contentType);
+            }
         };
 
         if (this.contentType) {
@@ -83,12 +85,15 @@ export class ProjectFilesViewerComponent implements OnInit {
             if (node.isDirectory()) {
                 const filtered = node.children.files.filter(filter);
                 if (this.contentType && filtered.length === 0) {
-                    return null;
+                    if (node.children.findChildRecursiveContentType(this.contentType) === undefined) {
+                        return null; // No file of content-type in all sub-tree
+                    }
+                    return []; // Some file of content-type in sub-tree but not direct child
                 } else {
                     return filtered;
                 }
             } else {
-                return null;
+                return null; // No directory
             }
         });
 
