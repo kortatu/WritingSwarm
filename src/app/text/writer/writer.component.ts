@@ -11,6 +11,7 @@ export class WriterComponent implements AfterViewInit {
   @Input()
   name: string;
   content: string;
+  previewContent: string;
   showingPreview = true;
   @Input('content')
   set _content(val: string) {
@@ -37,11 +38,13 @@ export class WriterComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.myInput.nativeElement.focus();
+    this.previewContent = this.content;
     this.ref.detectChanges();
   }
 
   changeContent() {
     this.modified = this.originalContent !== this.content;
+    this.previewContent = this.showingPreview ? this.content : this.originalContent;
   }
 
   async saveContent(): Promise<void> {
