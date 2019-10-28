@@ -70,7 +70,8 @@ export class WriterComponent implements AfterViewInit {
 
   async insertImage() {
     const textArea = this.myInput.nativeElement;
-    const cursorPos = textArea.selectionStart;
+    const selectionStart = textArea.selectionStart;
+    const selectionEnd = textArea.selectionEnd;
     const dialogRef = this.matDialog.open(SelectFileComponent, {
       width: '600px',
       data: {
@@ -79,14 +80,16 @@ export class WriterComponent implements AfterViewInit {
       }
     });
     const result: FileData = await dialogRef.afterClosed().toPromise();
-    this.content = textArea.value.substring(0, cursorPos)
-        + this.getImageLinkText(result)
-        + textArea.value.substring(cursorPos);
-    this.changeContent();
+    if (result) {
+      this.content = textArea.value.substring(0, selectionStart)
+          + this.getImageLinkText(result)
+          + textArea.value.substring(selectionEnd);
+      this.changeContent();
+    }
   }
 
   private getImageLinkText(result: FileData) {
     const url = environment.swarmProxy + `/bzz-raw:/${result.hash}`;
-    return ` ![${result.name}](${url}${result.size}) `;
+    return ` ![${result.name}](${url}${result.size})`;
   }
 }
