@@ -11,7 +11,7 @@ export enum SupportedFormats {
 @Component({
   selector: 'app-preview',
   templateUrl: './preview.component.html',
-  styleUrls: ['./preview.component.css']
+  styleUrls: ['./preview.component.scss']
 })
 export class PreviewComponent implements OnInit {
 

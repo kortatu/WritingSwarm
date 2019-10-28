@@ -18,7 +18,7 @@ const TOPIC_KEY = 'topic';
 @Component({
   selector: "app-root",
   templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.css"]
+  styleUrls: ["./app.component.scss"]
 })
 export class AppComponent implements OnInit {
     LOGO = require('./assets/Writing Swarm-logo-black_lifesavers_bee.png');
