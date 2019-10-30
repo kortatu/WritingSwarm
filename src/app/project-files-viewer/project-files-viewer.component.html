@@ -7,9 +7,9 @@
     </mat-tree-node>
     <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
         <li>
-            <div id="hash_{{node.hash}}" class="mat-tree-node action">
+            <div id="hash_{{node.hash}}" class="mat-tree-node action" matTreeNodeToggle>
                 {{node.fileName}}/
-                <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.fileName">
+                <button mat-icon-button [attr.aria-label]="'toggle ' + node.fileName">
                     <mat-icon class="mat-icon-rtl-mirror">
                         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
                     </mat-icon>

@@ -3,7 +3,7 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 import {WriterComponent} from './writer.component';
 import {BrowserModule, DomSanitizer} from '@angular/platform-browser';
 import {
-  MatCardModule,
+  MatCardModule, MatDialogModule,
   MatDividerModule,
   MatFormFieldModule,
   MatIconModule, MatInputModule,
@@ -33,6 +33,7 @@ describe('WriterComponent', () => {
         MatIconModule,
         MatTooltipModule,
         NoopAnimationsModule,
+        MatDialogModule,
       ],
       providers: [{
           provide: DomSanitizer,

@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>Select {{data.contentType}} file</h1>
+<div mat-dialog-content>
+    <nav>
+        <ul>
+            <app-project-files-viewer [rootHash]="data.rootHash"
+                                      [contentType]="data.contentType"
+                              (fileSelected)="loadEntry($event)"></app-project-files-viewer>
+        </ul>
+    </nav>
+    <div class="preview">
+        <img *ngIf="selected" [src]="selected.url" [alt]="selected.name"/>
+        <mat-icon *ngIf="!selected">image</mat-icon>
+    </div>
+</div>
+<div mat-dialog-actions>
+    <button mat-button (click)="onNoClick()">Dismiss</button>
+    <button mat-button [mat-dialog-close]="selected" cdkFocusInitial>Ok</button>
+</div>

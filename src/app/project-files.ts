@@ -2,7 +2,6 @@ import {IBzzListEntries, IBzzListEntry, SwarmService} from './swarm.service';
 import {environment} from '../environments/environment';
 import {from, iif, merge, Observable, of} from 'rxjs';
 import {flatMap} from 'rxjs/operators';
-import {empty} from 'rxjs/internal/Observer';
 
 export class ProjectFiles {
     files: ProjectFile[];
@@ -50,6 +49,22 @@ export class ProjectFiles {
                 return projectFile;
             } else if (projectFile.isDirectory() && fullPath.startsWith(projectFile.fullPath)) {
                 return projectFile.children.findChildRecursive(fullPath);
+            }
+        }
+        return undefined;
+    }
+
+    public findChildRecursiveContentType(contentType: string): ProjectFile {
+        return this.findChildRecursiveMatches(pf => pf.contentType && pf.contentType.startsWith(contentType));
+    }
+
+
+    public findChildRecursiveMatches(matches: (ProjectFile) => boolean): ProjectFile {
+        for (const projectFile of this.files) {
+            if (matches(projectFile)) {
+                return projectFile;
+            } else if (projectFile.isDirectory()) {
+                return projectFile.children.findChildRecursiveMatches(matches);
             }
         }
         return undefined;
