@@ -138,6 +138,13 @@ export class AppComponent implements OnInit {
                     fullPath = result.name + ".md";
                 }
                 this.addNewEmptyFile(fullPath, "# " + result.name);
+            } else if (result.type === 'tex') {
+                this.addNewEmptyFile(fullPath,
+`\\documentclass{book}
+\\title{${result.name}}
+\\begin{document}
+\\maketitle
+\\end{document}`);
             } else if (result.type === 'image') {
                 this.uploadNewFile(fullPath, result.blob);
             }

@@ -3,6 +3,7 @@ import {CdkTextareaAutosize} from '@angular/cdk/text-field';
 import {MatDialog} from '@angular/material';
 import {FileData, SelectFileComponent} from '../../select-file/select-file.component';
 import {environment} from '../../../environments/environment';
+import {SupportedFormats, TextDocument} from '../../preview/preview.component';
 
 @Component({
   selector: 'app-writer',
@@ -11,18 +12,32 @@ import {environment} from '../../../environments/environment';
 })
 export class WriterComponent implements AfterViewInit {
 
-  @Input()
+  @Input('name')
+  set _name(val: string) {
+    this.name = val;
+    if (this.name.endsWith('.tex')) {
+      this.format = SupportedFormats.LATEX;
+    } else {
+      this.format = SupportedFormats.MARKDOWN;
+    }
+  }
   name: string;
   @Input()
   rootHash: string;
   content: string;
+  format: SupportedFormats;
+  textDocument: TextDocument;
   previewContent: string;
   showingPreview = true;
   @Input('content')
   set _content(val: string) {
     this.content = val;
+    // this.format = 'tex';
     this.originalContent = val;
     this.previewContent = this.content;
+    this.textDocument = new TextDocument();
+    this.textDocument.content = this.previewContent;
+    this.textDocument.format = this.format;
     this.modified = false;
   }
   originalContent: string;
@@ -51,6 +66,9 @@ export class WriterComponent implements AfterViewInit {
   changeContent() {
     this.modified = this.originalContent !== this.content;
     this.previewContent = this.showingPreview ? this.content : this.originalContent;
+    this.textDocument = new TextDocument();
+    this.textDocument.content = this.previewContent;
+    this.textDocument.format = this.format;
   }
 
   async saveContent(): Promise<void> {

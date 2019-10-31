@@ -9,8 +9,6 @@
     background-color: white;
     overflow: auto;
     color: #333;
-    font-family: Consolas, "Liberation Mono", Courier, monospace;
-    font-weight: normal;
 }
 
 #preview_content.modified {
@@ -79,4 +77,846 @@
 ::ng-deep #preview_content table thead tr th, table tfoot tr th, table tfoot tr td, table tbody tr th, table tbody tr td, table tr td {
     display: table-cell;
     line-height: 1.125rem
+}
+
+/** Latex styles **/
+/* Base */
+::ng-deep #preview_content.format_tex :root, ::ng-deep #preview_content.format_tex :host {
+    --size: 10pt;
+    --line-height: 1.2;
+
+    /* --linewidth makes no sense here; it is the width of the line in the current environment */
+
+    --paperwidth: 100%;         /* paper is the browser window */
+
+    /* TeX's even/oddsidemargin are not available in CSS, the HtmlGenerator translates the relevant lengths
+     * to marginleftwidth, marginrightwidth, and textwidth, as well as marginparwidth - all relative to the paper.
+     * So if a fixed width page is desired, simply set --paperwidth to an absolute value.
+     */
+
+    --parindent: 1.5em;
+    --parskip: 0px;             /* needs to be a length, otherwise calc(2px + var(--parskip)) will return 0 */
+
+    --smallskipamount: 0.3rem;
+    --medskipamount: 0.6rem;
+    --bigskipamount: 1.2rem;
+
+    --listparindent: 0px;
+    --itemindent: 0px;
+
+    --leftmargini: 2.5em;
+    --leftmarginii: 2.2em;
+    --leftmarginiii: 1.87em;
+    --leftmarginiv: 1.7em;
+    --leftmarginv: 1em;
+    --leftmarginvi: 1em;
+
+    --leftmargin: var(--leftmargini);
+
+    --labelsep: 0.5rem;
+
+    --fboxrule: 0.4pt;
+    --fboxsep: 3pt;
+
+    /* multicols */
+    --columnsep: 35pt;
+    --columnseprule: 0pt;
+    --columnseprulecolor: black;
+
+    --multicolsep: 12pt;
+}
+
+
+::ng-deep #preview_content.format_tex .twocolumn {
+    --parindent: 1em;
+
+    --marginparsep: 1rem;
+
+    --leftmargini: 2em;
+    --leftmarginv: 0.5em;
+    --leftmarginvi: 0.5em;
+}
+
+
+::ng-deep #preview_content.format_tex .list {
+    --topsep: 0.8rem;
+    --parsep: 0.4rem;
+    --itemsep: 0.4rem;
+    --leftmargin: var(--leftmargini);
+}
+
+::ng-deep #preview_content.format_tex .list .list {
+    --topsep: 0.4rem;
+    --parsep: 0.2rem;
+    --itemsep: var(--parsep);
+    --leftmargin: var(--leftmarginii);
+}
+
+::ng-deep #preview_content.format_tex .list .list .list {
+    --topsep: 0.2rem;
+    --parsep: 0;
+    --itemsep: var(--topsep);
+    --leftmargin: var(--leftmarginiii);
+}
+
+::ng-deep #preview_content.format_tex .list .list .list .list {
+    --topsep: 0;
+    --leftmargin: var(--leftmarginiv);
+}
+
+::ng-deep #preview_content.format_tex .list .list .list .list .list {
+    --leftmargin: var(--leftmarginv);
+}
+
+::ng-deep #preview_content.format_tex .list .list .list .list .list .list {
+    --leftmargin: var(--leftmarginvi);
+}
+
+
+
+/***************/
+/* page layout */
+/***************/
+
+/* .page is the element when used as a web component */
+::ng-deep #preview_content.format_tex, ::ng-deep #preview_content.format_tex .page {
+    display: grid;
+
+    grid-template-columns: [margin-left] var(--marginleftwidth) [body] var(--textwidth) [margin-right] var(--marginrightwidth);
+    grid-template-rows: auto;
+
+    margin: 0;
+    padding: 0;
+
+    max-width: var(--paperwidth);   /* elements wider than this overflow, but don't increase bodywidth */
+    min-width: var(--paperwidth);
+}
+
+
+/* LaTeX page body */
+::ng-deep #preview_content.format_tex .body {
+    grid-column: body;
+    grid-row: 1;
+}
+
+/* LaTeX page margins */
+::ng-deep #preview_content.format_tex .margin-left {
+    grid-column: margin-left;
+    grid-row: 1;
+    justify-self: end;
+
+    display: flex;
+}
+
+::ng-deep #preview_content.format_tex .margin-right {
+    grid-column: margin-right;
+    grid-row: 1;
+    justify-self: start;
+
+    display: flex;
+}
+
+::ng-deep #preview_content.format_tex .marginpar {
+    width: var(--marginparwidth);           /* ideally in percent relative to margin */
+    min-width: var(--marginparwidth);       /* min-width if in grid/flex container, to force this width */
+
+    margin-left: var(--marginparsep);
+    margin-right: var(--marginparsep);
+}
+
+::ng-deep #preview_content.format_tex .marginpar > * {
+    padding-bottom: var(--marginparpush);   /* use padding, which is included in offsetHeight, margin is not */
+}
+
+
+/* columns */
+::ng-deep #preview_content.format_tex .onecolumn {
+    column-count: 1;
+}
+
+::ng-deep #preview_content.format_tex .twocolumn {
+    column-count: 2;
+}
+
+::ng-deep #preview_content.format_tex .multicols {
+    margin-top: var(--multicolsep);
+    margin-bottom: var(--multicolsep);
+
+    column-gap: var(--columnsep);
+    column-rule: var(--columnseprule) solid var(--columnseprulecolor);
+    column-fill: balance;
+}
+
+::ng-deep #preview_content.format_tex .span-cols {
+    column-span: all;
+}
+
+
+/*********/
+/* fonts */
+/*********/
+
+::ng-deep #preview_content.format_tex, ::ng-deep #preview_content.format_tex .page {
+    font-family: "Computer Modern Serif", serif;
+    font-size: var(--size);
+
+    text-align: justify;
+    line-height: var(--line-height);
+    hyphens: manual;
+}
+
+.katex {
+    font-size: 1em !important;
+}
+
+.katex,
+.katex .mainrm,
+.katex .mathit,
+.katex .mathbf {
+    font-family: "Computer Modern Serif" !important;  /* for KaTeX_Main */
+}
+
+.katex .mathdefault,
+.katex .boldsymbol {
+    font-family: "Computer Modern Serif" !important;  /* for KaTeX_Math */
+}
+
+.katex .mathsf,
+.katex .textsf,
+.katex .mathboldsf,
+.katex .textboldsf,
+.katex .mathitsf,
+.katex .textitsf {
+    font-family: "Computer Modern Sans" !important;  /* for KaTeX_SansSerif */
+}
+
+
+
+/* family */
+::ng-deep #preview_content.format_tex .rm {
+    font-family: "Computer Modern Serif", serif;
+    font-variant-ligatures: normal;
+}
+::ng-deep #preview_content.format_tex .sf {
+    font-family: "Computer Modern Sans", sans-serif;
+    font-variant-ligatures: normal;
+}
+::ng-deep #preview_content.format_tex .tt {
+    font-family: "Computer Modern Typewriter", monospace;
+    font-variant-ligatures: none;
+}
+
+/* weight */
+::ng-deep #preview_content.format_tex .md {
+    font-weight: normal;
+}
+
+::ng-deep #preview_content.format_tex .bf {
+    font-weight: bold;
+}
+
+/* shape - LaTeX doesn't support slanted small-caps by default */
+::ng-deep #preview_content.format_tex .up {
+    font-family: "Computer Modern Serif", serif;
+    font-style: normal;
+    font-variant-caps: normal;
+}
+
+::ng-deep #preview_content.format_tex .it {
+    font-style: italic;
+    font-variant-caps: normal;
+}
+
+::ng-deep #preview_content.format_tex .sl {
+    font-family: "Computer Modern Serif Slanted";
+    font-style: oblique;
+    font-variant-caps: normal;
+}
+
+::ng-deep #preview_content.format_tex .sf.sl {
+    font-family: "Computer Modern Sans", sans-serif;
+    font-style: oblique;
+    font-variant-caps: normal;
+}
+
+::ng-deep #preview_content.format_tex .tt.sl {
+    font-family: "Computer Modern Typewriter Slanted", monospace;
+    font-style: oblique;
+    font-variant-caps: normal;
+}
+
+::ng-deep #preview_content.format_tex .sc {
+    font-family: "Computer Modern Serif", serif;
+    font-style: normal;
+    font-variant-caps: small-caps;
+}
+
+
+
+
+/* size */
+
+::ng-deep #preview_content.format_tex .tiny {
+    font-size: .5rem;
+}
+
+::ng-deep #preview_content.format_tex .scriptsize {
+    font-size: .7rem;
+}
+
+::ng-deep #preview_content.format_tex .footnotesize {
+    font-size: .82rem;
+}
+
+::ng-deep #preview_content.format_tex .small {
+    font-size: .91rem;
+}
+
+::ng-deep #preview_content.format_tex .normalsize {
+    font-size: 1rem;
+}
+
+::ng-deep #preview_content.format_tex .large {
+    font-size: 1.2rem;
+}
+
+::ng-deep #preview_content.format_tex .Large {
+    font-size: 1.4rem;
+}
+
+::ng-deep #preview_content.format_tex .LARGE {
+    font-size: 1.7rem;
+}
+
+::ng-deep #preview_content.format_tex .huge {
+    font-size: 2rem;
+}
+
+::ng-deep #preview_content.format_tex .Huge {
+    font-size: 2.5rem;
+}
+
+
+
+
+/**************/
+/* sectioning */
+/**************/
+
+::ng-deep #preview_content.format_tex h1, ::ng-deep #preview_content.format_tex h2, ::ng-deep #preview_content.format_tex h3, ::ng-deep #preview_content.format_tex h4 {
+    /* \normalfont */
+    font-family: "Computer Modern Serif", serif;
+    font-style: normal;
+    font-variant-caps: normal;
+
+    text-align: left;
+}
+
+
+::ng-deep #preview_content.format_tex .titlepage {
+    height: 100vh;
+    min-height: 20rem;
+}
+
+::ng-deep #preview_content.format_tex .title {
+    font-size: 1.7rem;  /* LARGE */
+}
+
+::ng-deep #preview_content.format_tex .author, ::ng-deep #preview_content.format_tex .date {
+    font-size: 1.2rem;  /* large */
+}
+
+
+
+/*************/
+/* alignment */
+/*************/
+
+::ng-deep #preview_content.format_tex .centering, ::ng-deep #preview_content.format_tex .list.center {
+    text-indent: 0;
+    text-align: center;
+}
+
+::ng-deep #preview_content.format_tex .raggedright, ::ng-deep #preview_content.format_tex .list.flushleft {
+    text-indent: 0;
+    text-align: left;
+}
+
+::ng-deep #preview_content.format_tex .raggedleft, ::ng-deep #preview_content.format_tex .list.flushright {
+    text-indent: 0;
+    text-align: right;
+}
+
+
+/* alignment environments are lists (trivlist), so margin has to be removed */
+
+::ng-deep #preview_content.format_tex .list.center, ::ng-deep #preview_content.format_tex .list.flushleft, ::ng-deep #preview_content.format_tex .list.flushright {
+    margin-left: 0 !important;
+}
+
+/* a list on its own justifies */
+::ng-deep #preview_content.format_tex .list {
+    text-align: justify;
+}
+
+
+
+/*********/
+/* boxes */
+/*********/
+
+
+::ng-deep #preview_content.format_tex .hbox {
+    display: inline-block;
+    white-space: nowrap;
+    text-indent: 0;
+}
+
+::ng-deep #preview_content.format_tex .phantom {
+    visibility: hidden;
+}
+
+
+::ng-deep #preview_content.format_tex .llap {
+    display: inline-flex;
+    flex-direction: column;
+    width: 0;
+    align-items: flex-end;
+}
+
+::ng-deep #preview_content.format_tex .clap {
+    display: inline-flex;
+    flex-direction: column;
+    width: 0;
+    align-items: center;
+}
+
+::ng-deep #preview_content.format_tex .rlap {
+    display: inline-block;
+    width: 0;
+}
+
+
+::ng-deep #preview_content.format_tex .stretch {
+    display: inline-flex;
+    flex-direction: row;
+
+    justify-content: stretch;
+    align-items: stretch;
+}
+
+::ng-deep #preview_content.format_tex .smash {
+    display: inline-flex;
+    flex-direction: row;
+    height: 0px;
+    align-items: flex-end;
+}
+
+
+/* a class to align text to the baseline, and a class to locate the baseline */
+
+::ng-deep #preview_content.format_tex .align-baseline {
+    line-height: 0;
+}
+
+::ng-deep #preview_content.format_tex .align-baseline::after {
+    content: '';
+    display: inline-block;
+}
+
+::ng-deep #preview_content.format_tex .mpbaseline {
+    line-height: 0;
+    width: 0;
+    height: 0;
+    display: inline-block;
+}
+
+/* parbox/minipage */
+
+::ng-deep #preview_content.format_tex .parbox {
+    display: inline-block;
+    text-indent: 0;
+}
+
+/* pos: t (top) */
+::ng-deep #preview_content.format_tex .p-t {
+    display: inline-flex;
+}
+
+/* pos: c (center) */
+::ng-deep #preview_content.format_tex .p-c {
+    vertical-align: middle;
+}
+
+/* pos: b (bottom) */
+::ng-deep #preview_content.format_tex .p-b {
+    /* default */
+    vertical-align: baseline;       /* TODO: what if llap inside?? */
+}
+
+
+
+/* if we want a fixed height *and* bottom alignment */
+::ng-deep #preview_content.format_tex .pbh.p-b {
+    vertical-align: text-bottom;
+}
+
+
+/* the following are only possible if height was given, too */
+
+::ng-deep #preview_content.format_tex .p-t.p-ct {
+    vertical-align: baseline;
+}
+
+::ng-deep #preview_content.format_tex .p-t.p-cc {
+    vertical-align: text-top;
+    align-items: center;
+}
+
+/* pos: top, inner-pos: bottom */
+::ng-deep #preview_content.format_tex .p-t.p-cb {
+    vertical-align: text-top;
+    display: inline-flex;
+    align-items: flex-end;
+}
+
+/* pos and inner-pos: center */
+::ng-deep #preview_content.format_tex .p-c.p-cc {
+    display: inline-flex;
+    align-items: center;
+}
+
+::ng-deep #preview_content.format_tex .p-c.p-cb {
+    display: inline-flex;
+    align-items: flex-end;
+}
+
+
+::ng-deep #preview_content.format_tex .p-b.p-ct {
+    display: inline-flex;
+    align-items: flex-start;
+}
+
+::ng-deep #preview_content.format_tex .p-b.p-cc {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* pos: bottom, inner-pos: bottom */
+::ng-deep #preview_content.format_tex .p-b.p-cb {
+    vertical-align: baseline;
+    display: inline-flex;
+    align-items: flex-end;
+}
+
+::ng-deep #preview_content.format_tex .p-b.p-cb::before {
+    /* move the baseline to the bottom of a flex item */
+    content: "x";
+    display: inline-block;
+    width: 0;
+    visibility: hidden;
+}
+
+
+
+
+::ng-deep #preview_content.format_tex .underline {
+    border-bottom: 0.4pt solid;
+    line-height: 1;
+}
+
+
+::ng-deep #preview_content.format_tex .frame {
+    padding: var(--fboxsep);
+    border: var(--fboxrule) solid;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+
+/****************/
+/* environments */
+/****************/
+
+::ng-deep #preview_content.format_tex .pframe {
+    border-style: solid;
+}
+
+::ng-deep #preview_content.format_tex .picture {
+    display: inline-block;  /* so that it can be given a fixed size */
+    position: relative;
+    vertical-align: bottom; /* needed for \put */
+    text-indent: 0;         /* pictures in a paragraph still should not have indentation */
+    /* width: 0; */
+}
+
+/* the coordinate system of the picture */
+::ng-deep #preview_content.format_tex .picture-canvas {
+    display: flex;
+    align-items: flex-end;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+/* cannot do this, it pushes the whole picture up by the depth of the font :(
+.picture-canvas > .hbox::after {
+    content: "";
+    display: inline;
+}
+*/
+
+
+/* objects in a picture */
+::ng-deep #preview_content.format_tex .put-obj {
+    display: block;
+    position: relative;
+    line-height: 0;
+    /* width: 0; */         /* picture objects only have a height, but we cannot set the
+                               width to 0 directly because it breaks vertical baseline alignment of text */
+}
+
+/* make text align on the baseline in \put - needs line-height: 0 in .put-obj! */
+::ng-deep #preview_content.format_tex .put-obj:after {
+    content: '';
+    display: inline-block;
+}
+
+
+::ng-deep #preview_content.format_tex .strut {
+    display: block;
+}
+
+::ng-deep #preview_content.format_tex .picture-object {
+    position: absolute;
+    display: flex;          /* to align text and boxes at the bottom */
+    /* line-height: 0px; works for boxes, but breaks text */
+}
+
+
+/**********/
+/* macros */
+/**********/
+
+::ng-deep #preview_content.format_tex code {
+    white-space: pre;
+}
+
+
+/**********/
+/* spaces */
+/**********/
+
+/* reset */
+::ng-deep #preview_content.format_tex p, ::ng-deep #preview_content.format_tex ul, ::ng-deep #preview_content.format_tex ol, ::ng-deep #preview_content.format_tex dl, ::ng-deep #preview_content.format_tex div {
+    margin: 0;
+    padding: 0;
+}
+
+::ng-deep #preview_content.format_tex p {
+    margin-top: var(--parskip);
+    text-indent: var(--parindent);
+}
+
+
+::ng-deep #preview_content.format_tex h1 + p, ::ng-deep #preview_content.format_tex h1 + * p:first-child,
+::ng-deep #preview_content.format_tex h2 + p, ::ng-deep #preview_content.format_tex h2 + * p:first-child,
+::ng-deep #preview_content.format_tex h3 + p, ::ng-deep #preview_content.format_tex h3 + * p:first-child,
+::ng-deep #preview_content.format_tex h4 + p, ::ng-deep #preview_content.format_tex h4 + * p:first-child,
+::ng-deep #preview_content.format_tex .noindent,
+::ng-deep #preview_content.format_tex .continue {
+    text-indent: 0;
+}
+
+
+
+
+/* predefined horizontal spaces */
+::ng-deep #preview_content.format_tex .negthinspace {
+    margin-left: -0.16666667em;
+}
+
+
+/* vertical space - insert the actual space (negative or positive) with margin-bottom */
+::ng-deep #preview_content.format_tex .vspace {
+    display: block;
+}
+
+/* vertical space that forces a linebreak */
+::ng-deep #preview_content.format_tex .breakspace {
+    display: table;
+}
+
+/* inline vertical space - this cannot be negative */
+::ng-deep #preview_content.format_tex .vspace-inline {
+    display: inline-block;
+    height: calc(1em * var(--line-height));     /* full maximum height, including the leading: line-height * font-size */
+    vertical-align: top;                        /* if bottom is used, space could be inserted above this line of text */
+}
+
+
+/* predefined vertical spaces */
+::ng-deep #preview_content.format_tex .smallskip {
+    margin-bottom: var(--smallskipamount);
+}
+
+::ng-deep #preview_content.format_tex .medskip {
+    margin-bottom: var(--medskipamount);
+}
+
+::ng-deep #preview_content.format_tex .bigskip {
+    margin-bottom: var(--bigskipamount);
+}
+
+
+/****************/
+/* environments */
+/****************/
+
+
+/* lists */
+
+::ng-deep #preview_content.format_tex .list {
+    margin: calc(var(--topsep) + var(--parskip)) 0;
+    margin-left: var(--leftmargin);
+}
+
+::ng-deep #preview_content.format_tex .list p:first-of-type {
+    text-indent: var(--itemindent);
+}
+
+::ng-deep #preview_content.format_tex .list p + p {
+    margin-top: var(--parsep);
+    text-indent: var(--listparindent);
+}
+
+::ng-deep #preview_content.format_tex .list li + li,
+::ng-deep #preview_content.format_tex .list dd + dt {
+    margin-top: calc(var(--itemsep) + var(--parsep));
+}
+
+
+/* labels */
+
+::ng-deep #preview_content.format_tex li {
+    list-style: none;
+}
+
+/* label should be next to the item, so the first element after the label needs to be inline */
+::ng-deep #preview_content.format_tex .itemlabel + * {
+    display: inline;
+}
+
+::ng-deep #preview_content.format_tex .itemlabel > * {
+    position: relative;
+    right: var(--labelsep);
+}
+
+/* description */
+
+::ng-deep #preview_content.format_tex dd, ::ng-deep #preview_content.format_tex dd > p:first-child {
+    display: inline;
+}
+
+/* start a new line after dd and before dt */
+::ng-deep #preview_content.format_tex dd::after {
+    content: "";
+    display: block;
+}
+
+
+::ng-deep #preview_content.format_tex dt {
+    display: inline-block;
+    font-weight: bold;
+}
+
+::ng-deep #preview_content.format_tex .list dt {
+    margin-left: calc(-1 * var(--leftmargin));
+}
+
+::ng-deep #preview_content.format_tex dd {
+    margin-left: var(--labelsep);
+}
+
+
+
+/* quote, quotation, verse */
+
+::ng-deep #preview_content.format_tex .quote, ::ng-deep #preview_content.format_tex .quotation, ::ng-deep #preview_content.format_tex .verse {
+    margin-left: var(--leftmargin);
+    margin-right: var(--leftmargin);
+}
+
+::ng-deep #preview_content.format_tex .quotation {
+    --parsep: 0px;
+    --itemindent: 1.5em;
+    --listparindent: var(--itemindent);
+}
+
+::ng-deep #preview_content.format_tex .verse {
+    text-align: left;
+
+    margin-left: calc(1.5em + var(--leftmargin));
+    --itemindent: -1.5em;
+    --listparindent: var(--itemindent);
+}
+
+/* the TeX and LaTeX logos */
+
+::ng-deep #preview_content.format_tex span.tex,
+::ng-deep #preview_content.format_tex span.latex {
+    text-transform: uppercase;
+}
+
+::ng-deep #preview_content.format_tex span.latex > .a {
+    font-size: 0.8em;
+    vertical-align: 0.2em;
+    margin-left:  -0.45em;
+    margin-right: -0.15em;
+}
+
+::ng-deep #preview_content.format_tex span.tex > .e,
+::ng-deep #preview_content.format_tex span.latex > .e {
+    margin-left: -0.2em;
+    margin-right: -0.2em;
+    position: relative;
+    top: 0.45ex;
+}
+
+/* Book */
+/* chapter */
+::ng-deep #preview_content.format_tex h1 div {
+    font-size: 2rem;        /* \huge */
+    margin-bottom: 2rem;
+}
+
+::ng-deep #preview_content.format_tex h1 {
+    font-size: 2.5rem;      /* \Huge */
+    font-weight: bold;
+    margin-top: calc(5rem + 1em);       /* \vspace*{} in LaTeX adds an additional line */
+    margin-bottom: 4rem;
+}
+
+/* section */
+::ng-deep #preview_content.format_tex h2 {
+    font-size: 1.4rem;      /* \Large */
+    font-weight: bold;
+    margin-top: 3.5ex;
+    margin-bottom: 2.3ex;
+}
+
+/* subsection */
+::ng-deep #preview_content.format_tex h3 {
+    font-size: 1.2rem;      /* \large */
+    font-weight: bold;
+    margin-top: 3.25ex;
+    margin-bottom: 1.5ex;
+}
+
+/* subsubsection */
+::ng-deep #preview_content.format_tex h4 {
+    font-size: 1rem;        /* \normalsize */
+    font-weight: bold;
+    margin-top: 3.25ex;
+    margin-bottom: 1.5ex;
 }

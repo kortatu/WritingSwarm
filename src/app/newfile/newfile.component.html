@@ -20,11 +20,11 @@
                 <button mat-button (click)="data.blob = null; data.name = null" class="action"><mat-icon >clear</mat-icon></button>
             </p>
             <input id="fileUpload" name="file-field" (change)="uploadFile($event)" type="file"
-                   accept=".md,.png,.jpg,.jpeg,.gif" style="display: none">
+                   accept=".md,.tex,.png,.jpg,.jpeg,.gif" style="display: none">
         </mat-tab>
     </mat-tab-group>
 </div>
 <div mat-dialog-actions style="display: flex; justify-content: space-between">
     <button mat-button (click)="onNoClick()">Dismiss</button>
-    <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Ok</button>
+    <button mat-button (click)="finishAddfile()" cdkFocusInitial>Ok</button>
 </div>

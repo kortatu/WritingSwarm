@@ -45,7 +45,11 @@ export class NewfileComponent implements OnInit {
     addfile(file: File) {
         if (file.type.startsWith('text')) {
             this.typeIcon = 'text_format';
-            this.data.type = 'md';
+            if (file.type.endsWith(".tex")) {
+                this.data.type = 'tex';
+            } else {
+                this.data.type = 'md';
+            }
         } else if (file.type.startsWith('image')) {
             this.typeIcon = 'image';
             this.data.type = 'image';
@@ -62,5 +66,12 @@ export class NewfileComponent implements OnInit {
     changeTab($event: MatTabChangeEvent) {
         this.data.name = '';
         this.data.blob = null;
+    }
+
+    finishAddfile() {
+        if (this.data.name.endsWith(".tex")) {
+            this.data.type = 'tex';
+        }
+        this.dialogRef.close(this.data);
     }
 }
