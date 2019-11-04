@@ -19,11 +19,17 @@ import {HttpClient} from '@angular/common/http';
 import {DomSanitizer} from '@angular/platform-browser';
 import {ChangeDetectorRef} from '@angular/core';
 import {ProjectFilesViewerComponent} from './project-files-viewer/project-files-viewer.component';
+import {PreviewComponent} from './preview/preview.component';
 
+class MockHttpClient {
+  constructor() {
+  }
+}
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AppComponent, LoginComponent, WriterComponent, ProjectFilesViewerComponent],
+      declarations: [ AppComponent, LoginComponent, WriterComponent,
+        ProjectFilesViewerComponent, PreviewComponent],
       imports: [MatCardModule, MatSidenavModule, MatIconModule, MatDividerModule,
         FormsModule, MatFormFieldModule, MatInputModule,
         MatToolbarModule, MatTooltipModule, MatDialogModule, MatExpansionModule,
@@ -73,7 +79,3 @@ describe('AppComponent', () => {
   });
 });
 
-class MockHttpClient {
-  constructor() {
-  }
-}

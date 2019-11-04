@@ -1,5 +1,8 @@
 import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {CdkTextareaAutosize} from '@angular/cdk/text-field';
+import {MatDialog} from '@angular/material';
+import {FileData, SelectFileComponent} from '../../select-file/select-file.component';
+import {environment} from '../../../environments/environment';
 
 @Component({
   selector: 'app-writer',
@@ -10,6 +13,8 @@ export class WriterComponent implements AfterViewInit {
 
   @Input()
   name: string;
+  @Input()
+  rootHash: string;
   content: string;
   previewContent: string;
   showingPreview = true;
@@ -17,6 +22,7 @@ export class WriterComponent implements AfterViewInit {
   set _content(val: string) {
     this.content = val;
     this.originalContent = val;
+    this.previewContent = this.content;
     this.modified = false;
   }
   originalContent: string;
@@ -32,13 +38,13 @@ export class WriterComponent implements AfterViewInit {
 
   switchText = 'Original';
 
-  constructor(private ref: ChangeDetectorRef) {
+  constructor(private ref: ChangeDetectorRef,
+              private matDialog: MatDialog) {
     // nothing to see here
   }
 
   ngAfterViewInit(): void {
     this.myInput.nativeElement.focus();
-    this.previewContent = this.content;
     this.ref.detectChanges();
   }
 
@@ -60,5 +66,30 @@ export class WriterComponent implements AfterViewInit {
     this.showingPreview = !this.showingPreview;
     this.changeContent();
     this.switchText = this.showingPreview ? 'Original' : 'Preview';
+  }
+
+  async insertImage() {
+    const textArea = this.myInput.nativeElement;
+    const selectionStart = textArea.selectionStart;
+    const selectionEnd = textArea.selectionEnd;
+    const dialogRef = this.matDialog.open(SelectFileComponent, {
+      width: '600px',
+      data: {
+        contentType: 'image',
+        rootHash: this.rootHash,
+      }
+    });
+    const result: FileData = await dialogRef.afterClosed().toPromise();
+    if (result) {
+      this.content = textArea.value.substring(0, selectionStart)
+          + this.getImageLinkText(result)
+          + textArea.value.substring(selectionEnd);
+      this.changeContent();
+    }
+  }
+
+  private getImageLinkText(result: FileData) {
+    const url = environment.swarmProxy + `/bzz-raw:/${result.hash}`;
+    return ` ![${result.name}](${url}${result.size})`;
   }
 }

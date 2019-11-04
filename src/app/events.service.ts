@@ -15,7 +15,7 @@ const DEST_PUBLIC_KEY =
   providedIn: 'root'
 })
 export class EventsService {
-  private wsProxy = environment.swarmWsProxy
+  private wsProxy = environment.swarmWsProxy;
   private sender: PssSubject;
   private receiver: PssSubject;
   constructor() {}

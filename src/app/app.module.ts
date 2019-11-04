@@ -8,6 +8,8 @@ import {LoginComponent} from './login/login.component';
 import {NewfileComponent} from './newfile/newfile.component';
 import {UploadProgressComponent} from './upload-progress/upload-progress.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import { PreviewComponent } from './preview/preview.component';
+import { SelectFileComponent } from './select-file/select-file.component';
 import {
     MatButtonModule,
     MatCardModule,
@@ -25,7 +27,6 @@ import {
     MatTreeModule,
 } from '@angular/material';
 import { ProjectFilesViewerComponent } from './project-files-viewer/project-files-viewer.component';
-import { PreviewComponent } from './preview/preview.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { PreviewComponent } from './preview/preview.component';
     NewfileComponent,
     UploadProgressComponent,
     ProjectFilesViewerComponent,
-    PreviewComponent
+    PreviewComponent,
+    SelectFileComponent,
   ],
     imports: [
         BrowserModule,
@@ -60,6 +62,7 @@ import { PreviewComponent } from './preview/preview.component';
   entryComponents: [
     NewfileComponent,
     UploadProgressComponent,
+    SelectFileComponent,
   ],
   providers: [],
   bootstrap: [AppComponent],

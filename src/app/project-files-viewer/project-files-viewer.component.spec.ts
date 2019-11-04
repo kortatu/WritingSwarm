@@ -5,6 +5,11 @@ import {MatIconModule, MatTreeModule} from '@angular/material';
 import {ChangeDetectorRef} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 
+class MockHttpClient {
+  constructor() {
+  }
+}
+
 describe('ProjectFilesViewerComponent', () => {
   let component: ProjectFilesViewerComponent;
   let fixture: ComponentFixture<ProjectFilesViewerComponent>;
@@ -39,8 +44,3 @@ describe('ProjectFilesViewerComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-
-class MockHttpClient {
-  constructor() {
-  }
-}

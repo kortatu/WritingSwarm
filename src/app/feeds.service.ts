@@ -9,7 +9,7 @@ import {createKeyPair, sign} from '@erebos/secp256k1';
     providedIn: 'root'
 })
 export class FeedsService {
-    proxy = environment.swarmProxy;
+    proxy = environment.production ? window.location.origin : environment.swarmProxy;
     private bzz: Bzz;
     private user: hexValue;
     public updatePending: boolean;
