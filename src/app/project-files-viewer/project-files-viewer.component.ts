@@ -10,7 +10,7 @@ import {Observable, ReplaySubject, Subject} from 'rxjs';
 @Component({
     selector: 'app-project-files-viewer',
     templateUrl: './project-files-viewer.component.html',
-    styleUrls: ['./project-files-viewer.component.css']
+    styleUrls: ['./project-files-viewer.component.scss']
 })
 export class ProjectFilesViewerComponent implements OnInit {
     @Input('rootHash')
