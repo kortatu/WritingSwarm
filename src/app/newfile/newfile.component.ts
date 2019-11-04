@@ -10,7 +10,7 @@ export class NewfileData {
 @Component({
     selector: 'app-newfile',
     templateUrl: './newfile.component.html',
-    styleUrls: ['./newfile.component.css']
+    styleUrls: ['./newfile.component.scss']
 })
 export class NewfileComponent implements OnInit {
 
